@@ -1,0 +1,116 @@
+* text=auto !eol
+base/inscription3.php -text
+content/auteur-profil.html -text
+content/auteur.html -text
+content/inscription.html -text
+content/spip_pass.html -text
+contenu/auteur-profil.html -text
+contenu/auteur.html -text
+contenu/page-inscription.html -text
+contenu/page-spip_pass.html -text
+controleurs/adresse.html -text
+controleurs/adressecomplete.html -text
+controleurs/code_postal.html -text
+controleurs/fax.html -text
+controleurs/mobile.html -text
+controleurs/nomcomplet.html -text
+controleurs/organisationlink.html -text
+controleurs/pays.html -text
+controleurs/telephone.html -text
+controleurs/telfax.html -text
+controleurs/ville.html -text
+/crayons_validation.js.html -text
+/crayons_validation.js_fonctions.php -text
+css/password_strength.css -text
+fonds/inscription3_cextras.html -text
+fonds/inscription3_infos_persos.html -text
+formulaires/configurer_inscription3.html -text
+formulaires/configurer_inscription3_fonctions.php -text
+formulaires/inc-inscription-inscription3.html -text
+formulaires/inc-js_pass_verification.html -text
+formulaires/inscription3_cextras.html -text
+formulaires/inscription3_cextras_fonctions.php -text
+formulaires/inscription3_infos_connection.html -text
+formulaires/inscription3_infos_perso.html -text
+formulaires/inscription3_recherche.html -text
+formulaires/inscription3_recherche.php -text
+formulaires/inscription3_reglement.html -text
+formulaires/inscription3_validation.js.html -text
+formulaires/supprimer_visiteur.html -text
+formulaires/supprimer_visiteur.php -text
+genie/inscription3_taches_generales.php -text
+head/inscription.html -text
+/i3_validation_methods.js.html -text
+images/aconf-12.gif -text svneol=unset#image/gif
+images/adherent-12.gif -text svneol=unset#image/gif
+images/admin-12.gif -text svneol=unset#image/gif
+images/creer-12.gif -text svneol=unset#image/gif
+images/defaut-12.gif -text svneol=unset#image/gif
+images/edit-12.gif -text svneol=unset#image/gif
+images/fle_asc.gif -text svneol=unset#image/gif
+images/fle_both.gif -text svneol=unset#image/gif
+images/fle_desc.gif -text svneol=unset#image/gif
+images/inscription3-24.png -text svneol=unset#image/png
+images/inscription3-256.png -text svneol=unset#image/png
+images/inscription3-32.png -text svneol=unset#image/png
+images/inscription3-64.png -text svneol=unset#image/png
+images/interdit-12.gif -text svneol=unset#image/gif
+images/logo_auteur_defaut.png -text svneol=unset#image/png
+images/poubelle-12.gif -text svneol=unset#image/gif
+images/redac-12.gif -text svneol=unset#image/gif
+imports/pays.php -text
+inc/envoyer_inscription3.php -text
+inc/inscription3_champs_formulaire.php -text
+inc/inscription3_champs_obligatoires.php -text
+inc/inscription3_verifier_tables.php -text
+inclure/i3_auteur-normal.html -text
+inclure/i3_auteur-profil_modifier.html -text
+inclure/i3_auteur-profil_normal.html -text
+/inscription3_administrations.php -text
+/inscription3_autoriser.php -text
+/inscription3_fonctions.php -text
+/inscription3_options.php -text
+/inscription3_pipelines.php -text
+javascript/i3_validation_controleurs.js -text
+javascript/jquery.password_strength.js -text
+lang/inscription3.xml -text
+lang/inscription3_en.php -text
+lang/inscription3_fr.php -text
+lang/paquet-inscription3_en.php -text
+lang/paquet-inscription3_fr.php -text
+menus/inscription.html -text
+menus/inscription.xml -text
+modeles/fiche_utilisateur.html -text
+modeles/fiche_utilisateur_fonctions.php -text
+notifications/auteur_inscription_confirmer.html -text
+notifications/auteur_inscription_confirmer_admin.html -text
+notifications/auteur_inscription_pass.html -text
+notifications/auteur_inscription_verifier_admin.html -text
+notifications/auteur_invalide.html -text
+notifications/auteur_invalide_admin.html -text
+notifications/auteur_valide_admin.html -text
+notifications/i3_inscriptionauteur.php -text
+notifications/instituerauteur.php -text
+/paquet.xml -text
+prive/formulaires/inscription3_recherche_cas.html -text
+prive/inscription3_affiche_droite.html -text
+prive/listes/select_pays.html -text
+prive/squelettes/contenu/configurer_inscription3.html -text
+prive/squelettes/contenu/inscription3_adherents.html -text
+prive/squelettes/navigation/inscription3_adherents.html -text
+prive/squelettes/top/inscription3_adherents.html -text
+prive/style_prive_plugin_inscription3.html -text
+prive/table_adherent_auteur.html -text
+prive/table_adherent_auteur_recherche.html -text
+prive/themes/spip/images/inscription2-16.png -text svneol=unset#image/png
+saisies-vues/pays.html -text
+tests/autoriser_modifier_statut.html -text
+verifier/login.php -text
+verifier/signature.php -text
+verifier/statut.php -text
+verifier/telephone.php -text
+vues/adressecomplete.html -text
+vues/nomcomplet.html -text
+vues/organisationlink.html -text
+vues/pays.html -text
+vues/telfax.html -text
