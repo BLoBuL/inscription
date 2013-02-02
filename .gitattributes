@@ -76,6 +76,7 @@ javascript/jquery.password_strength.js -text
 lang/inscription3.xml -text
 lang/inscription3_en.php -text
 lang/inscription3_fr.php -text
+lang/paquet-inscription3.xml -text
 lang/paquet-inscription3_en.php -text
 lang/paquet-inscription3_fr.php -text
 menus/inscription.html -text
