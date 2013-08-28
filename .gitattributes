@@ -26,6 +26,7 @@ fonds/inscription3_cextras.html -text
 fonds/inscription3_infos_persos.html -text
 formulaires/configurer_inscription3.html -text
 formulaires/configurer_inscription3_fonctions.php -text
+formulaires/configurer_inscription3_reglement.html -text
 formulaires/inc-inscription-inscription3.html -text
 formulaires/inc-js_pass_verification.html -text
 formulaires/inscription3_cextras.html -text
