@@ -89,6 +89,7 @@ modeles/fiche_utilisateur_fonctions.php -text
 notifications/auteur_inscription_confirmer.html -text
 notifications/auteur_inscription_confirmer_admin.html -text
 notifications/auteur_inscription_pass.html -text
+notifications/auteur_inscription_valider.html -text
 notifications/auteur_inscription_verifier_admin.html -text
 notifications/auteur_invalide.html -text
 notifications/auteur_invalide_admin.html -text
