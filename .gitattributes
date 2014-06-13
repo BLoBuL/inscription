@@ -51,10 +51,6 @@ images/edit-12.gif -text svneol=unset#image/gif
 images/fle_asc.gif -text svneol=unset#image/gif
 images/fle_both.gif -text svneol=unset#image/gif
 images/fle_desc.gif -text svneol=unset#image/gif
-images/inscription3-24.png -text svneol=unset#image/png
-images/inscription3-256.png -text svneol=unset#image/png
-images/inscription3-32.png -text svneol=unset#image/png
-images/inscription3-64.png -text svneol=unset#image/png
 images/interdit-12.gif -text svneol=unset#image/gif
 images/logo_auteur_defaut.png -text svneol=unset#image/png
 images/poubelle-12.gif -text svneol=unset#image/gif
@@ -108,6 +104,11 @@ prive/style_prive_plugin_inscription3.html -text
 prive/table_adherent_auteur.html -text
 prive/table_adherent_auteur_recherche.html -text
 prive/themes/spip/images/inscription2-16.png -text svneol=unset#image/png
+prive/themes/spip/images/inscription3-16.png -text svneol=unset#image/png
+prive/themes/spip/images/inscription3-24.png -text svneol=unset#image/png
+prive/themes/spip/images/inscription3-256.png -text svneol=unset#image/png
+prive/themes/spip/images/inscription3-32.png -text svneol=unset#image/png
+prive/themes/spip/images/inscription3-64.png -text svneol=unset#image/png
 saisies-vues/pays.html -text
 tests/autoriser_modifier_statut.html -text
 verifier/login.php -text
