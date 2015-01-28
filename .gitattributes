@@ -90,6 +90,7 @@ notifications/auteur_inscription_valider.html -text
 notifications/auteur_inscription_verifier_admin.html -text
 notifications/auteur_invalide.html -text
 notifications/auteur_invalide_admin.html -text
+notifications/auteur_valide.html -text
 notifications/auteur_valide_admin.html -text
 notifications/i3_inscriptionauteur.php -text
 notifications/instituerauteur.php -text
