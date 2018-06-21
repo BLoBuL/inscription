@@ -72,6 +72,7 @@ inclure/i3_auteur-profil_normal.html -text
 javascript/i3_validation_controleurs.js -text
 javascript/jquery.password_strength.js -text
 lang/inscription3.xml -text
+lang/inscription3_de.php -text
 lang/inscription3_en.php -text
 lang/inscription3_es.php -text
 lang/inscription3_fr.php -text
