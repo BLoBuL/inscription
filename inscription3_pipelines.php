@@ -225,7 +225,7 @@ function inscription3_i3_definition_champs($flux) {
 		'saisie' => 'radio', // type de saisie
 		'options' => array(
 			'label'=> _T('inscription3:label_civilite'),
-			'datas'=> array(
+			'data'=> array(
 				'F' => _T('inscription3:choix_feminin'),
 				'M' => _T('inscription3:choix_masculin')
 			),

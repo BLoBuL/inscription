@@ -8,19 +8,19 @@ if (!defined('_ECRIRE_INC_VERSION')) {
  * Chargement des valeurs par defaut des champs du formulaire
  */
 function formulaires_inscription3_recherche_charger_dist() {
-	$datas = array('editable' => 'true');
-	$datas['ordre'] = _request('ordre');
-	$datas['desc'] = _request('desc');
-	$datas['case'] = _request('case');
-	$datas['valeur'] = _request('valeur');
+	$data = array('editable' => 'true');
+	$data['ordre'] = _request('ordre');
+	$data['desc'] = _request('desc');
+	$data['case'] = _request('case');
+	$data['valeur'] = _request('valeur');
 
-	$datas['exceptions'] = pipeline('i3_exceptions_des_champs_auteurs_elargis', array());
+	$data['exceptions'] = pipeline('i3_exceptions_des_champs_auteurs_elargis', array());
 
 	if (_request('afficher_tous')) {
 		set_request('valeur', '');
 		set_request('case', '');
 	}
-	return $datas;
+	return $data;
 }
 
 /**
