@@ -136,7 +136,7 @@
 							[(#GET{auteurs}|concat{[(#ID_AUTEUR)|][(#NOM|attribut_html)][(#COMPTEUR_BOUCLE|!={#TOTAL_BOUCLE}|oui)|]})]
 						})]
 					</BOUCLE_choix_auteurs>
-					[(#SAISIE{selection_multiple,admin_notifications,
+					[(#SAISIE{checkbox,admin_notifications,
 						cacher_option_intro=oui,
 						label=<:inscription3:label_admin_notifications:>,
 						explication=<:inscription3:explication_admin_notifications:>,
