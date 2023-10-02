@@ -142,6 +142,11 @@
 						explication=<:inscription3:explication_admin_notifications:>,
 						data=#GET{auteurs}|saisies_chaine2tableau})]
 
+					[(#SAISIE{input,destinataire_supp_notifications,						
+						label=<:inscription3:label_destinataire_supp_notifications:>,
+						explication=<:inscription3:explication_destinataire_supp_notifications:>
+                    })]
+                    
 					<li class="editer editer_statut_nouveau">
 						<label><:inscription3:label_statut:></label>
 						#SET{statuts,#EVAL{$GLOBALS['liste_des_statuts']}}

@@ -1286,26 +1286,51 @@ function inscription3_notifications_destinataires($flux) {
 			/**
 			 * Cas de la validation ou invalidation d'un compte d'un utilisateur
 			 * Envoi aux administrateurs ($options['type'] == 'admin')
-			 */
-			/**
+			 */    
+            $liste_email_desti_notifs= array();        
+            /**
 			 * Aller chercher dans la conf les admins à notifier si configuré
 			 */
 			if (is_array(lire_config('inscription3/admin_notifications'))) {
 				$id_admins = lire_config('inscription3/admin_notifications');
-				$admins = sql_allfetsel(
+				$emails_admin = sql_allfetsel(
 					'email',
 					'spip_auteurs',
 					'statut="0minirezo" and ' . sql_in('id_auteur', $id_admins)
 				);
-			} else {
-				$admins = sql_allfetsel('email', 'spip_auteurs', 'statut="0minirezo" and webmestre="oui"');
+                foreach ($emails_admin as $email_admin) {
+                  $liste_email_desti_notifs[]= $email_admin['email'];
+                }
 			}
+            /**
+			 * Aller chercher dans la conf les emails supplementaires à notifier si configuré
+			 */    
+            if (!empty(lire_config('inscription3/destinataire_supp_notifications'))) {
+                include_spip('inc/filtres'); # pour email_valide()
+                
+				$destinataires_supp = lire_config('inscription3/destinataire_supp_notifications');
+				$emails_supp = explode(',',$destinataires_supp);
+                foreach($emails_supp as $email_supp){
+                     if(email_valide($email_supp)){
+                         $liste_email_desti_notifs[]= $email_supp;
+                     }
+                }                
+			}
+            /**
+			 * Si aucun destinataire,
+			 */    
+			if(empty($liste_email_desti_notifs)) {
+            $emails = sql_allfetsel('email', 'spip_auteurs', 'statut="0minirezo" and webmestre="oui"');
+              foreach($emails_supp as $email_supp){
+                 if(email_valide($email_supp)){
+                     $liste_email_desti_notifs[]= $email_admin['email'];
+                 }
+			}
+        }
 
-		foreach ($admins as $qui) {
-			$flux['data'][] = $qui['email'];
-		}
-	}
-	return $flux;
+        $flux['data'] = $liste_email_desti_notifs;
+    }
+    return $flux;
 }
 
 /**
