@@ -28,7 +28,7 @@
 					[(#VALEUR{source}|!={inscription3}|oui)
 					<tr>
 						<td class="label">
-							<label for="[(#VALEUR{options/nom})]">[(#VALEUR{options/label})]</label>
+							<label for="[(#VALEUR{options/nom})]">[(#VALEUR{options/label}|sinon{#VALEUR{options/titre}}|sinon{#VALEUR{options/texte}}|couper{60})]</label>
 						</td>
 						<td>
 							<input type="checkbox" name="[(#VALEUR{options/nom})]_nocreation"[(#ENV{[(#VALEUR{options/nom})]_nocreation}|=={on}|oui) checked="checked)"] id="[(#VALEUR{options/nom})]_nocreaction" />
@@ -39,12 +39,18 @@
 						<td>
 							<input type="checkbox" name="[(#VALEUR{options/nom})]_fiche_nocreation"[(#ENV{[(#VALEUR{options/nom})]_fiche_nocreation}|=={on}|oui)checked="checked"] id="[(#VALEUR{options/nom})]_fiche" />
 						</td>
+                        [(#VALEUR{saisie}|in_array{#LISTE{fieldset,explication}}|non)
 						<td class="i3_table">
 							<input type="checkbox" name="[(#VALEUR{options/nom})]_table_nocreation"[(#ENV{[(#VALEUR{options/nom})]_table_nocreation}|=={on}|oui)checked="checked"] id="[(#VALEUR{options/nom})]_table" />
 						</td>
 						<td>
 							<input type="checkbox" name="[(#VALEUR{options/nom})]_obligatoire_nocreation"[(#ENV{[(#VALEUR{options/nom})]_obligatoire_nocreation}|=={on}|oui)checked="checked"] id="[(#VALEUR{options/nom})]_obligatoire" />
 						</td>
+                        ]
+                        [(#VALEUR{saisie}|in_array{#LISTE{fieldset,explication}}|oui)<td></td><td></td>
+                        ]
+                        
+                        
 					</tr>]
 					</BOUCLE_objets>
 				</table>
