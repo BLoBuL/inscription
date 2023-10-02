@@ -18,40 +18,13 @@
 						<tr>
 							<th class="label">&nbsp;</th>
 							<th><:inscription3:thead_form:> </th>
-							<th> </th>
 							<th> <:inscription3:thead_fiche:> </th>
 							<th class="i3_table"> <:inscription3:thead_table:> </th>
 							<th> <:inscription3:thead_obligatoire:></th>
 						</tr>
 					</thead>
 					<BOUCLE_objets(DATA){si #GET{test_objets}|=={true}|oui}{source tableau,#VAL{spip_auteurs}|champs_extras_objet}>
-					[(#VALEUR{source}|!={inscription3}|oui)
-					<tr>
-						<td class="label">
-							<label for="[(#VALEUR{options/nom})]">[(#VALEUR{options/label}|sinon{#VALEUR{options/titre}}|sinon{#VALEUR{options/texte}}|couper{60})]</label>
-						</td>
-						<td>
-							<input type="checkbox" name="[(#VALEUR{options/nom})]_nocreation"[(#ENV{[(#VALEUR{options/nom})]_nocreation}|=={on}|oui) checked="checked)"] id="[(#VALEUR{options/nom})]_nocreaction" />
-						</td>
-						<td>
-
-						</td>
-						<td>
-							<input type="checkbox" name="[(#VALEUR{options/nom})]_fiche_nocreation"[(#ENV{[(#VALEUR{options/nom})]_fiche_nocreation}|=={on}|oui)checked="checked"] id="[(#VALEUR{options/nom})]_fiche" />
-						</td>
-                        [(#VALEUR{saisie}|in_array{#LISTE{fieldset,explication}}|non)
-						<td class="i3_table">
-							<input type="checkbox" name="[(#VALEUR{options/nom})]_table_nocreation"[(#ENV{[(#VALEUR{options/nom})]_table_nocreation}|=={on}|oui)checked="checked"] id="[(#VALEUR{options/nom})]_table" />
-						</td>
-						<td>
-							<input type="checkbox" name="[(#VALEUR{options/nom})]_obligatoire_nocreation"[(#ENV{[(#VALEUR{options/nom})]_obligatoire_nocreation}|=={on}|oui)checked="checked"] id="[(#VALEUR{options/nom})]_obligatoire" />
-						</td>
-                        ]
-                        [(#VALEUR{saisie}|in_array{#LISTE{fieldset,explication}}|oui)<td></td><td></td>
-                        ]
-                        
-                        
-					</tr>]
+                        <INCLURE{fond=fonds/inscription3_cextras_valeur,valeur=#VALEUR,env}>
 					</BOUCLE_objets>
 				</table>
 			</li>
