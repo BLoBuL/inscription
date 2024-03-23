@@ -50,7 +50,8 @@ if (!function_exists('lcfirst')) {
 function i3_recherche($quoi = null, $ou = null, $table = null) {
 	if (isset($quoi) and isset($ou)) {
 		$quoi = texte_script(trim($quoi));
-		include_spip('base/serial'); // aucazou !
+		include_spip('base/objets');
+		lister_tables_objets_sql(); // aucazou !
 		global $tables_principales;
 
 		if (isset($tables_principales[table_objet_sql($table)]['field'][$ou])) {
