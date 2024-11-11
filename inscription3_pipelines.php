@@ -281,7 +281,7 @@ function inscription3_formulaire_charger($flux) {
 			if (is_array($valeurs[$valeur])) {
 				$valeurs[$valeur] = implode(',', $valeurs[$valeur]);
 			}
-			$valeurs[$valeur] = trim($valeurs[$valeur]);
+			$valeurs[$valeur] = is_null($valeurs[$valeur]) ? '' : trim($valeurs[$valeur]);
 			if ($valeur == 'naissance') {
 				$date_naissance = array();
 				if (_request('naissance')
