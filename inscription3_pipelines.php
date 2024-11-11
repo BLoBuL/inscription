@@ -750,7 +750,7 @@ function inscription3_formulaire_traiter($flux) {
 				$valeurs[$valeur] = implode(',', $valeurs[$valeur]);
 			}
 
-			$valeurs[$valeur] = trim($valeurs[$valeur]);
+			$valeurs[$valeur] = is_null($valeurs[$valeur]) ? '' : trim($valeurs[$valeur]);
 			if ($valeur == 'naissance') {
 				$annee = trim(_request('naissance_annee'));
 				$mois = _request('naissance_mois');
@@ -797,7 +797,7 @@ function inscription3_formulaire_traiter($flux) {
 		 * Le compte est automatiquement activé
 		 */
 		if ($mode == 'inscription_pass') {
-			if (strlen(_request('password')) != 0) {
+			if (!is_null(_request('password')) && strlen(_request('password')) != 0) {
 				$new_pass = _request('password');
 			} elseif ($mode == 'inscription_pass') {
 				$new_pass = _request('pass');
