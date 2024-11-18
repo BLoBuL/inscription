@@ -22,12 +22,18 @@ if (!defined('_ECRIRE_INC_VERSION')) {
  * @param array $options
  */
 function notifications_instituerauteur($quoi, $id_auteur, $options) {
+    spip_log('statut auteur inchange', 'notifications'. _LOG_CRITIQUE);
 	// ne devrait jamais se produire
-	if ($options['statut'] == $options['statut_ancien']) {
-		spip_log('statut auteur inchange', 'notifications');
-		return;
-	}
-
+    if (isset($options['statut']) ){
+        $statut_nouveau = $options['statut'];
+    } elseif (isset($options['statut_nouveau'])) {
+        $statut_nouveau = $options['statut_nouveau'];
+    } else {
+        spip_log('statut auteur inchange', 'notifications');
+        $statut_nouveau = false;
+    }
+    spip_log($options, 'notifications');
+    spip_log('statut auteur : '.$statut_nouveau, 'notifications'. _LOG_CRITIQUE);
 	include_spip('inc/texte');
 	include_spip('inscription3_mes_fonctions');
 
@@ -40,8 +46,8 @@ function notifications_instituerauteur($quoi, $id_auteur, $options) {
 	 *
 	 * S'il est validé, on lui recrée un pass que l'on met dans le mail avec son login
 	 */
-	if ($options['statut_ancien'] == '8aconfirmer') {
-		if ($options['statut'] == '5poubelle') {
+	if ($options['statut_ancien'] == '8aconfirmer' && $statut_nouveau != '8aconfirmer') {
+		if ($statut_nouveau == '5poubelle') {
 			$modele = 'notifications/auteur_invalide';
 			$modele_admin = 'notifications/auteur_invalide_admin';
 		} else {
@@ -72,6 +78,7 @@ function notifications_instituerauteur($quoi, $id_auteur, $options) {
 			)
 		);
 		if ($modele) {
+            spip_log($modele, 'notifications'. _LOG_CRITIQUE);
 			if ($fonction_user == 'auteur_pass') {
 				$texte = email_notification_auteur_pass($id_auteur, $modele, $pass);
 			} else {

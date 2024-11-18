@@ -19,7 +19,7 @@ if (!defined('_ECRIRE_INC_VERSION')) {
  * @param array $options
  */
 function notifications_i3_inscriptionauteur($quoi, $id_auteur, $options) {
-
+    spip_log($options, 'notifications'. _LOG_CRITIQUE);
 	include_spip('inc/texte');
 	include_spip('inscription3_mes_fonctions');
 
@@ -32,19 +32,28 @@ function notifications_i3_inscriptionauteur($quoi, $id_auteur, $options) {
 	 *
 	 * S'il est validé, on lui recrée un pass que l'on met dans le mail avec son login
 	 */
-	if (isset($options['statut']) && $options['statut'] == '8aconfirmer') {
+    if (isset($options['statut']) ){
+        $statut_nouveau = $options['statut'];
+    } elseif (isset($options['statut_nouveau'])) {
+        $statut_nouveau = $options['statut_nouveau'];
+    } else {
+        spip_log('statut auteur inchange', 'notifications'. _LOG_CRITIQUE);
+        $statut_nouveau = false;
+        return;
+    }
+        spip_log($options, 'notifications');
+        spip_log('statut auteur : '.$statut_nouveau, 'notifications');
+	if (isset($statut_nouveau) && $statut_nouveau == '8aconfirmer')  {
 		$modele = 'notifications/auteur_inscription_confirmer';
 		$modele_admin = 'notifications/auteur_inscription_confirmer_admin';
 	}
 
-	if ($options['statut_ancien'] == '8aconfirmer'
-		and $options['statut'] != 'poubelle') {
+	if ($options['statut_ancien'] == '8aconfirmer'  && $statut_nouveau != '8aconfirmer'	and $statut_nouveau != 'poubelle') {
 		$modele = 'notifications/auteur_inscription_valider';
 		$modele_admin = 'notifications/auteur_valide_admin';
 	}
 
-	if (($options['statut'] != '8aconfirmer')
-		and ($options['pass'] == 'ok')) {
+	if ($statut_nouveau != '8aconfirmer' and $options['pass'] == 'ok') {
 		$modele = 'notifications/auteur_inscription_pass';
 	}
 	/**
@@ -56,7 +65,7 @@ function notifications_i3_inscriptionauteur($quoi, $id_auteur, $options) {
 	if ($modele) {
 		$options['type'] = 'user';
 		$destinataires = array();
-
+        spip_log($modele, 'notifications'. _LOG_CRITIQUE);
 		$destinataires = pipeline(
 			'notifications_destinataires',
 			array(
