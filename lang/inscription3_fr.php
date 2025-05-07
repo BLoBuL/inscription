@@ -128,6 +128,7 @@ $GLOBALS[$GLOBALS['idx_lang']] = array(
 	'label_inscription_depuis' => 'Membre depuis le @date@.',
 	'label_inscription_texte' => 'Introduction du formulaire',
 	'label_inscription_texte_libre' => 'Texte en cas de choix libre',
+	'label_langue' => 'Langue de l’utilisateur',
 	'label_login' => 'Nom d’utilisateur (login)',
 	'label_logo_auteur' => 'Logo',
 	'label_mobile' => 'Mobile :',

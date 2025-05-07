@@ -1067,11 +1067,11 @@ function inscription3_editer_contenu_objet($flux) {
 			include_spip('inc/config');
 		}
 		$config = lire_config('inscription3', array());
-		$champs_spip = array('nom','email','bio','pgp','url_site','nom_site','login','pass');
+		$champs_spip = array('nom','email','bio','langue','pgp','url_site','nom_site','login','pass');
 		$champs_vires = array();
 		$inserer_saisie = '';
 		foreach ($champs_spip as $champ) {
-			if (isset($config[$champ.'_fiche_mod']) and $config[$champ.'_fiche_mod'] != 'on') {
+			if (!isset($config[$champ.'_fiche_mod']) || (isset($config[$champ.'_fiche_mod']) && $config[$champ.'_fiche_mod'] != 'on')) {
 				if ($champ == 'login') {
 					$flux['data'] = preg_replace(
 						"/(<(li|div) [^>]*class=[\"']editer editer_new_($champ).*<\/(li|div)>)/Uims",
