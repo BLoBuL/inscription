@@ -48,7 +48,7 @@ function notifications_i3_inscriptionauteur($quoi, $id_auteur, $options) {
 		$modele_admin = 'notifications/auteur_inscription_confirmer_admin';
 	}
 
-	if ($options['statut_ancien'] == '8aconfirmer'  && $statut_nouveau != '8aconfirmer'	and $statut_nouveau != 'poubelle') {
+	if (isset($options['statut_ancien']) && $options['statut_ancien'] == '8aconfirmer'  && $statut_nouveau != '8aconfirmer'	and $statut_nouveau != 'poubelle') {
 		$modele = 'notifications/auteur_inscription_valider';
 		$modele_admin = 'notifications/auteur_valide_admin';
 	}
@@ -59,7 +59,7 @@ function notifications_i3_inscriptionauteur($quoi, $id_auteur, $options) {
 	/**
 	 * Vérification régulière (via Cron) des comptes à valider ou invalider
 	 */
-	if ($options['verifier_confirmer'] == 'oui') {
+	if (isset($options['verifier_confirmer']) && $options['verifier_confirmer'] == 'oui') {
 		$modele_admin = 'notifications/auteur_inscription_verifier_admin';
 	}
 	if ($modele) {
@@ -77,7 +77,7 @@ function notifications_i3_inscriptionauteur($quoi, $id_auteur, $options) {
 		notifications_envoyer_mails($destinataires, $texte);
 	}
 
-	if ($modele_admin) {
+	if (isset($modele_admin)) {
 		$options['type'] = 'admin';
 		$destinataires = array();
 

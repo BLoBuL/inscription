@@ -44,7 +44,7 @@ if (!function_exists('autoriser_auteur_modifier')) {
 				and $id == $qui['id_auteur'];
 		} else {
 			return
-				!$opt['statut']
+				!isset($opt['statut'])
 				and $qui['statut'] == '6forum'
 				and $id == $qui['id_auteur'];
 		}
