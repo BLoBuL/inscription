@@ -1110,7 +1110,7 @@ function inscription3_editer_contenu_objet($flux) {
 
 		if (isset($config['password_reset'])
 			and $config['password_reset'] !== 'on') {
-				$flux['data'] = 'zzz'. preg_replace(
+				$flux['data'] = preg_replace(
 					"/(<button [^>]*name=[\"']reset_password[\"'].*<\/button>)/Uims",
 					'',
 					$flux['data'],
