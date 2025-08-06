@@ -85,7 +85,7 @@ function notifications_instituerauteur($quoi, $id_auteur, $options) {
 		notifications_envoyer_mails($destinataires, $texte);
 	}
 
-	if ($modele_admin) {
+	if (isset($modele_admin)) {
 		$options['type'] = 'admin';
 		$destinataires = array();
 

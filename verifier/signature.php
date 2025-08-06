@@ -22,7 +22,7 @@ function verifier_signature_dist($valeur, $options = array()) {
 		if (sql_getfetsel(
 			'id_auteur',
 			'spip_auteurs',
-			"id_auteur !='".intval($options['id_auteur'])."' AND nom = '$valeur'"
+			"id_auteur !='".intval($options['id_auteur'] ?? 0)."' AND nom = '$valeur'"
 		)) {
 			return _T('inscription3:erreur_signature_deja_utilise');
 		}

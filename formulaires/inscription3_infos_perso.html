@@ -12,6 +12,7 @@ On teste la présence d'au moins un des champs pour l'afficher]
 [(#GET{config_inscription3}|table_valeur{bio}|=={on})]}|ou{
 [(#GET{config_inscription3}|table_valeur{nom_site}|=={on})]}|ou{
 [(#GET{config_inscription3}|table_valeur{url_site}|=={on})]}|ou{
+[(#GET{config_inscription3}|table_valeur{langue}|=={on})]}|ou{
 [(#GET{config_inscription3}|table_valeur{pgp}|=={on})]}|ou{
 [(#GET{config_inscription3}|table_valeur{commentaire}|=={on})]}|ou{
 [(#GET{config_inscription3}|table_valeur{adresse}|=={on})]}|ou{
@@ -55,6 +56,16 @@ On teste la présence d'au moins un des champs pour l'afficher]
 				obligatoire=#GET{prenom_obligatoire},
 				label=<:inscription3:label_prenom:>,
 				size=30})]
+		]
+
+		[(#GET{config_inscription3}|table_valeur{langue}|=={on}|oui)
+			<div class="editer editer_langue[ (#ENV*{erreurs/langue}|oui)erreur]">
+				[<label for="langue">(#ENV{id_auteur}|=={#SESSION{id_auteur}}|?{<:ecrire:icone_ma_langue:>,<:ecrire:label_langue:>})</label>][
+				<span class="erreur_message">(#ENV*{erreurs/langue})</span>
+				]<select name="langue" id="langue" class="text langue">
+				[(#INCLURE{fond=prive/formulaires/inc-options-langues,name=var_lang_ecrire,default=#ENV{langue,fr}})]
+				</select>
+			</div>
 		]
 
 		[(#GET{config_inscription3}|table_valeur{logo}|=={on}|oui)

@@ -381,7 +381,7 @@ function inscription3_formulaire_verifier($flux) {
 		include_spip('inscription3_fonctions');
 		include_spip('inc/editer');
 		$config_i3 = lire_config('inscription3', array());
-		if ($erreurs['message_erreur'] == null) {
+		if (isset($erreurs['message_erreur']) && $erreurs['message_erreur'] == null) {
 			unset($erreurs['message_erreur']);
 		}
 
@@ -479,7 +479,7 @@ function inscription3_formulaire_verifier($flux) {
 				}
 			}
 
-			if ($erreurs['reglement']) {
+			if (isset($erreurs['reglement'])) {
 				$erreurs['reglement'] = _T('inscription3:erreur_reglement_obligatoire');
 			}
 		}
@@ -515,6 +515,7 @@ function inscription3_formulaire_verifier($flux) {
 					and intval(_request('id_auteur')) > 0
 					and in_array($type['type'], array('email', 'signature'))) {
 					if ($type['type'] == 'email' and isset($type['options']['disponible'])
+						and isset($infos_auteurs[$clef])
 						and $infos_auteurs[$clef] == _request($clef)) {
 						unset($type['options']['disponible']);
 					} elseif (($type['type'] == 'signature') and ($infos_auteurs[$clef] == _request($clef))) {
@@ -523,7 +524,7 @@ function inscription3_formulaire_verifier($flux) {
 				}
 				if (!isset($erreurs[$clef]) and _request($clef)) {
 					$valeurs[$clef] = trim(_request($clef));
-					$type['options'] = array_merge(array_merge(is_array($type['options']) ?
+					$type['options'] = array_merge(array_merge((isset($type['options']) && is_array($type['options'])) ?
 						$type['options'] : array(), $_GET), $options);
 					$erreurs[$clef] = $verifier($valeurs[$clef], $type['type'], $type['options']);
 					if ($erreurs[$clef] == null) {
@@ -581,7 +582,7 @@ function inscription3_formulaire_verifier($flux) {
 		 * Naisance est un champs spécifique coupé en trois on le vérifie séparément
 		 * s'il est obligatoire
 		 */
-		if ($erreurs['naissance']) {
+		if (isset($erreurs['naissance'])) {
 			$annee = trim(_request('naissance_annee'));
 			$mois = trim(_request('naissance_mois'));
 			$jour = trim(_request('naissance_jour'));
@@ -591,7 +592,7 @@ function inscription3_formulaire_verifier($flux) {
 				unset($erreurs['naissance']);
 			}
 		}
-		if (!$erreurs['naissance'] and _request('naissance') and (_request('naissance') != '0000-00-00')) {
+		if (!isset($erreurs['naissance']) and _request('naissance') and (_request('naissance') != '0000-00-00')) {
 			if (_request('naissance_annee') > (date('Y'))) {
 				$erreurs['naissance'] = _T('inscription3:erreur_naissance_futur');
 			} elseif (_request('naissance_annee') > (date('Y')-10)) {
@@ -619,9 +620,9 @@ function inscription3_formulaire_verifier($flux) {
 		 */
 		if (count($erreurs) and !isset($erreurs['message_erreur'])) {
 			if (isset($erreurs_obligatoires)) {
-				$erreurs['message_erreur'] .= _T('inscription3:formulaire_remplir_obligatoires');
+				$erreurs['message_erreur'] = _T('inscription3:formulaire_remplir_obligatoires');
 			} else {
-				$erreurs['message_erreur'] .= _T('inscription3:formulaire_remplir_validation');
+				$erreurs['message_erreur'] = _T('inscription3:formulaire_remplir_validation');
 			}
 		}
 		$flux['data'] = $erreurs;
@@ -765,7 +766,7 @@ function inscription3_formulaire_traiter($flux) {
 		// Definir le login s'il a besoin de l'etre
 		// NOM et LOGIN sont des champs obligatoires donc a la creation il ne doivent pas etre vide
 		// Apres on s'en fiche s'il n'est pas dans le formulaire
-		if (!$valeurs['login'] and !$nom) {
+		if (!isset($valeurs['login']) and !isset($nom)) {
 			if ($valeurs['nom_famille'] or $valeurs['prenom']) {
 				$valeurs['nom'] = trim($valeurs['prenom'].' '.$valeurs['nom_famille']);
 			} else {
@@ -776,7 +777,7 @@ function inscription3_formulaire_traiter($flux) {
 		}
 
 		$valeurs['email'] = $mail;
-		if (!$valeurs['login']) {
+		if (!isset($valeurs['login'])) {
 			if ($user['login']) {
 				$valeurs['login'] = $user['login'];
 			}
@@ -913,7 +914,7 @@ function inscription3_formulaire_traiter($flux) {
 					'data' => $flux['data']
 				)
 			);
-			if (!$traiter_plugin['ne_pas_confirmer_par_mail']) {
+			if (isset($traiter_plugin['ne_pas_confirmer_par_mail']) && !$traiter_plugin['ne_pas_confirmer_par_mail']) {
 				if ($mode == 'aconfirmer') {
 					$traiter_plugin['message_ok'] = _T('inscription3:form_retour_aconfirmer');
 					if ($notifications = charger_fonction('notifications', 'inc')) {
@@ -952,9 +953,9 @@ function inscription3_formulaire_traiter($flux) {
 					}
 				}
 			}
-			$flux['data']['editable'] = $traiter_plugin['editable'];
-			$flux['data']['message_ok'] = $traiter_plugin['message_ok'];
-			$flux['data']['redirect'] = $traiter_plugin['redirect'];
+			$flux['data']['editable'] = $traiter_plugin['editable'] ?? '';
+			$flux['data']['message_ok'] = $traiter_plugin['message_ok'] ?? '';
+			$flux['data']['redirect'] = $traiter_plugin['redirect'] ?? '';
 		}
 	}
 	return $flux;
@@ -1067,11 +1068,11 @@ function inscription3_editer_contenu_objet($flux) {
 			include_spip('inc/config');
 		}
 		$config = lire_config('inscription3', array());
-		$champs_spip = array('nom','email','bio','pgp','url_site','nom_site','login','pass');
+		$champs_spip = array('nom','email','bio','langue','pgp','url_site','nom_site','login','pass');
 		$champs_vires = array();
 		$inserer_saisie = '';
 		foreach ($champs_spip as $champ) {
-			if (isset($config[$champ.'_fiche_mod']) and $config[$champ.'_fiche_mod'] != 'on') {
+			if (!isset($config[$champ.'_fiche_mod']) || (isset($config[$champ.'_fiche_mod']) && $config[$champ.'_fiche_mod'] != 'on')) {
 				if ($champ == 'login') {
 					$flux['data'] = preg_replace(
 						"/(<(li|div) [^>]*class=[\"']editer editer_new_($champ).*<\/(li|div)>)/Uims",
@@ -1105,6 +1106,16 @@ function inscription3_editer_contenu_objet($flux) {
 					$inserer_saisie .= "<input type='hidden' name='$champ' value='".$flux['args']['contexte'][$champ]."' />\n";
 				}
 			}
+		}
+
+		if (isset($config['password_reset'])
+			and $config['password_reset'] !== 'on') {
+				$flux['data'] = preg_replace(
+					"/(<button [^>]*name=[\"']reset_password[\"'].*<\/button>)/Uims",
+					'',
+					$flux['data'],
+					1
+				);
 		}
 
 		/**

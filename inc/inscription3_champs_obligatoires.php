@@ -22,6 +22,7 @@ function inc_inscription3_champs_obligatoires_dist($id_auteur = null, $form = 'e
 	}
 	$config_i3 = lire_config('inscription3', array());
 
+	$suffixe = '';
 	if (is_numeric($id_auteur)) {
 		$suffixe = '_fiche_mod';
 	}
