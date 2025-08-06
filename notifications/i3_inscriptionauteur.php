@@ -37,9 +37,13 @@ function notifications_i3_inscriptionauteur($quoi, $id_auteur, $options) {
         $statut_nouveau = $options['statut_nouveau'];
     } else {
         $statut_nouveau = false;
+    }
+    if(isset($statut_nouveau) AND $statut_nouveau == $options['statut_ancien']) {
+        // statut auteur inchange on ne notifie pas
         return;
     }
-	if (isset($statut_nouveau) && $statut_nouveau == '8aconfirmer')  {
+
+    if (isset($statut_nouveau) && $statut_nouveau == '8aconfirmer') {
 		$modele = 'notifications/auteur_inscription_confirmer';
 		$modele_admin = 'notifications/auteur_inscription_confirmer_admin';
 	}
