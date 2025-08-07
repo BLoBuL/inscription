@@ -9,7 +9,7 @@
 	
 ]#SET{saisies,#ARRAY}
 <B_objets>
-<BOUCLE_objets(DATA){si #PLUGIN{cextras}|oui}{source tableau,#VAL{spip_auteurs}|champs_extras_objet}>
+<BOUCLE_objets(DATA){si #PLUGIN{cextras}|oui}{source tableau,#VAL{spip_auteurs}|champs_extras_objet_aplati}>
 [(#CONFIG{inscription3/[(#VALEUR{options/nom})]_nocreation}|=={on}|oui)
 	[(#REM)
 		On enlève l'option obligatoire si elle n'est pas dans la conf d'inscription3
