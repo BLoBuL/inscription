@@ -281,7 +281,7 @@ function inscription3_formulaire_charger($flux) {
 			if (is_array($valeurs[$valeur])) {
 				$valeurs[$valeur] = implode(',', $valeurs[$valeur]);
 			}
-			$valeurs[$valeur] = is_null($valeurs[$valeur]) ? '' : trim($valeurs[$valeur]);
+			$valeurs[$valeur] = is_scalar($valeurs[$valeur]) ? trim((string)$valeurs[$valeur]) : '';
 			if ($valeur == 'naissance') {
 				$date_naissance = array();
 				if (_request('naissance')
@@ -303,7 +303,8 @@ function inscription3_formulaire_charger($flux) {
 				if (array_key_exists($valeur, $saisies)) {
 					$saisie_nom = $saisies[$valeur]['options']['nom'];
 					if (_request($saisie_nom)) {
-						$valeurs[$saisie_nom] = trim(_request($saisie_nom));
+						$valeur_saisie_nom = _request($saisie_nom);
+						$valeurs[$saisie_nom] = is_scalar($valeur_saisie_nom) ? trim((string)$valeur_saisie_nom) : '';
 					}
 				}
 			}
@@ -523,7 +524,8 @@ function inscription3_formulaire_verifier($flux) {
 					}
 				}
 				if (!isset($erreurs[$clef]) and _request($clef)) {
-					$valeurs[$clef] = trim(_request($clef));
+					$valeur_clef = _request($clef);
+					$valeurs[$clef] = is_scalar($valeur_clef) ? trim((string)$valeur_clef) : '';
 					$type['options'] = array_merge(array_merge((isset($type['options']) && is_array($type['options'])) ?
 						$type['options'] : array(), $_GET), $options);
 					$erreurs[$clef] = $verifier($valeurs[$clef], $type['type'], $type['options']);
@@ -583,12 +585,17 @@ function inscription3_formulaire_verifier($flux) {
 		 * s'il est obligatoire
 		 */
 		if (isset($erreurs['naissance'])) {
-			$annee = trim(_request('naissance_annee'));
-			$mois = trim(_request('naissance_mois'));
-			$jour = trim(_request('naissance_jour'));
+			$annee_brut = _request('naissance_annee');
+			$mois_brut = _request('naissance_mois');
+			$jour_brut = _request('naissance_jour');
+			$annee = is_scalar($annee_brut) ? trim((string)$annee_brut) : '';
+			$mois = is_scalar($mois_brut) ? trim((string)$mois_brut) : '';
+			$jour = is_scalar($jour_brut) ? trim((string)$jour_brut) : '';
+			$naissance_brut = _request('naissance');
+			$naissance = is_scalar($naissance_brut) ? trim((string)$naissance_brut) : '';
 			if ((!$annee or !$mois or !$jour)
 				and $config_i3['naissance_obligatoire'] != 'on'
-				and (trim(_request('naissance')) == '0000-00-00')) {
+				and ($naissance == '0000-00-00')) {
 				unset($erreurs['naissance']);
 			}
 		}
@@ -751,9 +758,10 @@ function inscription3_formulaire_traiter($flux) {
 				$valeurs[$valeur] = implode(',', $valeurs[$valeur]);
 			}
 
-			$valeurs[$valeur] = is_null($valeurs[$valeur]) ? '' : trim($valeurs[$valeur]);
+			$valeurs[$valeur] = is_scalar($valeurs[$valeur]) ? trim((string)$valeurs[$valeur]) : '';
 			if ($valeur == 'naissance') {
-				$annee = trim(_request('naissance_annee'));
+				$annee_brut = _request('naissance_annee');
+				$annee = is_scalar($annee_brut) ? trim((string)$annee_brut) : '';
 				$mois = _request('naissance_mois');
 				$jour = _request('naissance_jour');
 				$valeurs[$valeur] = sql_format_date($annee, $mois, $jour);
