@@ -109,7 +109,7 @@ if (isset($GLOBALS['visiteur_session']['statut'])
 				 * Si on n'autorise pas la modification dans la configuration
 				 * ou si le champ en question est "creation"
 				 */
-				if ($inscription3[$cle.'_fiche_mod'] != 'on') {
+				if (($inscription3[$cle.'_fiche_mod'] ?? '') != 'on') {
 					restreindre_extras('auteurs', $cle, '*');
 				}
 				$champ_testes[] = $cle;
