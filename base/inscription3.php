@@ -76,10 +76,10 @@ function inscription3_declarer_champs_extras($champs = array()) {
 						);
 						$array_defaut['options'] = array_merge(
 							$array_defaut['options'],
-							(!test_espace_prive()
-								&& (isset($GLOBALS['visiteur_session']['statut'])
-								&& $GLOBALS['visiteur_session']['statut'] != '0minirezo')
-								&& ($config[$cle.'_fiche_mod'] != 'on')) ?
+				(!test_espace_prive()
+						&& (isset($GLOBALS['visiteur_session']['statut'])
+						&& $GLOBALS['visiteur_session']['statut'] != '0minirezo')
+						&& (($config[$cle.'_fiche_mod'] ?? '') != 'on')) ?
 									array('readonly'=>'oui','size'=>'30') : array('size'=>'30')
 						);
 						$array = array();
@@ -119,7 +119,7 @@ function inscription3_declarer_champs_extras($champs = array()) {
 						(!test_espace_prive()
 							&& (isset($GLOBALS['visiteur_session']['statut'])
 							&& $GLOBALS['visiteur_session']['statut'] != '0minirezo')
-							&& ($config[$cle.'_fiche_mod'] != 'on')) ?
+							&& (($config[$cle.'_fiche_mod'] ?? '') != 'on')) ?
 							array('readonly'=>'oui','size'=>'30') : array('size'=>'30')
 					);
 				}
