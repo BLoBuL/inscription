@@ -923,7 +923,8 @@ function inscription3_formulaire_traiter($flux) {
 					'data' => $flux['data']
 				)
 			);
-			if (isset($traiter_plugin['ne_pas_confirmer_par_mail']) && !$traiter_plugin['ne_pas_confirmer_par_mail']) {
+			// Confirmer par mail SAUF si un plugin a explicitement mis ne_pas_confirmer_par_mail à true
+		if (!isset($traiter_plugin['ne_pas_confirmer_par_mail']) || !$traiter_plugin['ne_pas_confirmer_par_mail']) {
 				if ($mode == 'aconfirmer') {
 					$traiter_plugin['message_ok'] = _T('inscription3:form_retour_aconfirmer');
 					if ($notifications = charger_fonction('notifications', 'inc')) {
@@ -1133,14 +1134,13 @@ function inscription3_editer_contenu_objet($flux) {
 		 * Logiquement ce champs est rempli automatiquement via pre_insertion pour tous les auteurs
 		 */
 		if (isset($config['creation']) and $config['creation'] == 'on') {
-			$flux['data'] = preg_replace(
-				inscription3_regexp_capturer_balise('class', 'editer editer_creation', true),
-				'',
-				$flux['data'],
-				1
-			);
-			spip_log(inscription3_regexp_capturer_balise('class', 'editer editer_cextra_creation', true), 'test.'._LOG_ERREUR);
-			$flux['data'] = preg_replace(
+		$flux['data'] = preg_replace(
+			inscription3_regexp_capturer_balise('class', 'editer editer_creation', true),
+			'',
+			$flux['data'],
+			1
+		);
+		$flux['data'] = preg_replace(
 				inscription3_regexp_capturer_balise('class', 'editer editer_cextra_creation', true),
 				'',
 				$flux['data'],
