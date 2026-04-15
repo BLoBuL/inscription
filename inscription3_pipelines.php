@@ -519,7 +519,7 @@ function inscription3_formulaire_verifier($flux) {
 						and isset($infos_auteurs[$clef])
 						and $infos_auteurs[$clef] == _request($clef)) {
 						unset($type['options']['disponible']);
-					} elseif (($type['type'] == 'signature') and ($infos_auteurs[$clef] == _request($clef))) {
+					} elseif (($type['type'] == 'signature') and (($infos_auteurs[$clef] ?? '') == _request($clef))) {
 						continue;
 					}
 				}
