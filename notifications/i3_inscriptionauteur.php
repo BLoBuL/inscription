@@ -53,7 +53,7 @@ function notifications_i3_inscriptionauteur($quoi, $id_auteur, $options) {
 		$modele_admin = 'notifications/auteur_valide_admin';
 	}
 
-	if ($statut_nouveau != '8aconfirmer' and $options['pass'] == 'ok') {
+	if ($statut_nouveau != '8aconfirmer' and ($options['pass'] ?? '') == 'ok') {
 		$modele = 'notifications/auteur_inscription_pass';
 	}
 	/**

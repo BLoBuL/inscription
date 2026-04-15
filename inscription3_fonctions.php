@@ -48,27 +48,34 @@ if (!function_exists('lcfirst')) {
  * @param object $table[optional]
  */
 function i3_recherche($quoi = null, $ou = null, $table = null) {
-	if (isset($quoi) and isset($ou)) {
-		$quoi = texte_script(trim($quoi));
-		include_spip('base/objets');
-		lister_tables_objets_sql(); // aucazou !
-		global $tables_principales;
+    if (isset($quoi) and isset($ou)) {
+        $quoi = texte_script(trim($quoi));
+        include_spip('base/objets');
+        lister_tables_objets_sql(); // aucazou !
+        global $tables_principales;
 
-		if (isset($tables_principales[table_objet_sql($table)]['field'][$ou])) {
-			$auteurs = sql_get_select('id_auteur', table_objet_sql($table), "$ou LIKE '%$quoi%'");
-		} else {
-			global $tables_jointures;
-			if (isset($tables_jointures[table_objet_sql($table)])
-				and ($jointures=$tables_jointures[table_objet_sql($table)])) {
-				foreach ($jointures as $jointure => $val) {
-					if (isset($tables_principales[table_objet_sql($val)]['field'][$ou])) {
-						$auteurs = sql_get_select('id_auteur', table_objet_sql($table)." AS $table LEFT JOIN ".table_objet_sql($val)." AS $val USING(id_auteur)", "$val.$ou LIKE '%$quoi%'");
-					}
-				}
-			}
-		}
-		return "($auteurs)";
-	}
+        $table = (string) $table;
+        $ou = (string) $ou;
+
+        if (isset($tables_principales[table_objet_sql($table)]['field'][$ou])) {
+            $auteurs = sql_get_select('id_auteur', table_objet_sql($table), "$ou LIKE '%$quoi%'");
+        } else {
+            global $tables_jointures;
+            if (isset($tables_jointures[table_objet_sql($table)])
+                and ($jointures = $tables_jointures[table_objet_sql($table)])) {
+                foreach ($jointures as $jointure => $val) {
+                    if (isset($tables_principales[table_objet_sql($val)]['field'][$ou])) {
+                        $auteurs = sql_get_select(
+                            'id_auteur',
+                            table_objet_sql($table) . " AS $table LEFT JOIN " . table_objet_sql($val) . " AS $val USING(id_auteur)",
+                            "$val.$ou LIKE '%$quoi%'"
+                        );
+                    }
+                }
+            }
+        }
+        return "($auteurs)";
+    }
 }
 
 /**
@@ -124,34 +131,34 @@ if (function_exists('restreindre_extras')) {
  * @param unknown_type $boucles
  * @param unknown_type $crit
  */
+
 function critere_reglement_dist($idb, &$boucles, $crit) {
-	$boucle = &$boucles[$idb];
-	$id_article = false;
-	if (defined('_DIR_PLUGIN_PAGES')
-		and ($id_article = sql_getfetsel('id_article', 'spip_articles', 'page="reglement"'))) {
-		$where = "array('=', '".$boucle->id_table.".".$boucle->primary."', '".$id_article."')";
-	}
+    $boucle = &$boucles[$idb];
+    $id_article = false;
+    if (defined('_DIR_PLUGIN_PAGES')
+        and ($id_article = sql_getfetsel('id_article', 'spip_articles', 'page="reglement"'))) {
+        $where = "array('=', '".(string) $boucle->id_table.".".(string) $boucle->primary."', '".$id_article."')";
+    }
 
-	if (!$id_article) {
-		if (!function_exists('lire_config')) {
-			include_spip('inc/config');
-		}
-		$reglement = lire_config('inscription3/reglement_article', 0);
-		if (is_array($reglement)) {
-			$reglement = str_replace('article|', '', $reglement[0]);
-		}
-		if (is_numeric($reglement) and intval($reglement) > 0) {
-			$where = "array('=', '".$boucle->id_table.".id_article', '".$reglement."')";
-		}
-	}
-	if (!$where) {
-		$where = "array('=', '".$boucle->id_table.".id_article', '0')";
-	}
-	if ($where) {
-		$boucle->where[]= $where;
-	}
+    if (!$id_article) {
+        if (!function_exists('lire_config')) {
+            include_spip('inc/config');
+        }
+        $reglement = lire_config('inscription3/reglement_article', 0);
+        if (is_array($reglement)) {
+            $reglement = str_replace('article|', '', $reglement[0]);
+        }
+        if (is_numeric($reglement) and intval($reglement) > 0) {
+            $where = "array('=', '".(string) $boucle->id_table.".id_article', '".$reglement."')";
+        }
+    }
+    if (!$where) {
+        $where = "array('=', '".(string) $boucle->id_table.".id_article', '0')";
+    }
+    if ($where) {
+        $boucle->where[] = $where;
+    }
 }
-
 function envoyer_inscription3($desc, $nom, $mode) {
 	$nom_site_spip = nettoyer_titre_email($GLOBALS['meta']['nom_site']);
 	$adresse_site = $GLOBALS['meta']['adresse_site'];

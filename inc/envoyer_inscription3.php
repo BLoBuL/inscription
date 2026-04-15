@@ -27,8 +27,8 @@ function inc_envoyer_inscription3_dist($id_auteur, $mode) {
 	$nom_site_spip = $GLOBALS['meta']['nom_site'];
 	$adresse_site = $GLOBALS['meta']['adresse_site'];
 
-	$prenom = ($config_i3['prenom'] == 'on') ? 'prenom,' : '';
-	$nom = ($config_i3['nom_famille'] == 'on') ? 'nom_famille,' : '';
+	$prenom = (($config_i3['prenom'] ?? '') == 'on') ? 'prenom,' : '';
+	$nom = (($config_i3['nom_famille'] ?? '') == 'on') ? 'nom_famille,' : '';
 
 	$var_user = sql_fetsel(
 		"nom,$prenom $nom id_auteur, alea_actuel, login, email",
@@ -50,6 +50,10 @@ function inc_envoyer_inscription3_dist($id_auteur, $mode) {
 		$cookie = creer_uniqid();
 		sql_updateq('spip_auteurs', array('cookie_oubli' => $cookie), 'id_auteur=' . $id_auteur);
 	}
+	// Initialisation pour éviter les undefined variable si $mode est inconnu
+	$sujet = '';
+	$message = '';
+
 	if ($mode == 'inscription') {
 		// nettoyer le mode sup
 		$message = _T('inscription3:message_auto')."\n\n"
@@ -77,7 +81,7 @@ function inc_envoyer_inscription3_dist($id_auteur, $mode) {
 		$sujet,
 		$message
 	)) {
-		return;
+		return true;
 	} else {
 		return _T('inscription3:probleme_email');
 	}

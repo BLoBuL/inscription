@@ -22,7 +22,7 @@ function inc_inscription3_valide_login_dist($valeur, $options = array()) {
 		if (sql_getfetsel(
 			'id_auteur',
 			'spip_auteurs',
-			'id_auteur !='.intval($options['id_auteur']).' AND login = '.sql_quote($valeur)
+			'id_auteur !='.intval($options['id_auteur'] ?? 0).' AND login = '.sql_quote($valeur)
 		)) {
 			return _T('inscription3:erreur_login_deja_utilise');
 		}
@@ -31,5 +31,5 @@ function inc_inscription3_valide_login_dist($valeur, $options = array()) {
 			return _T('info_login_trop_court');
 		}
 	}
-	return;
+	return false;
 }

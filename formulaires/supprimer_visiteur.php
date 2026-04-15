@@ -39,7 +39,7 @@ function formulaires_supprimer_visiteur_charger_dist() {
 	 * - On ne peut pas supprimer un compte webmestre;
 	 * - Si ces conditions sont remplies, on ajoute dans l'environnement les informations nécessaires;
 	 */
-	if ($row['id_auteur']) {
+	if (isset($row) && !empty($row['id_auteur'])) {
 		if (!intval($GLOBALS['visiteur_session']['id_auteur'])) {
 			$valeurs['message_erreur'] = _T('inscription3:erreur_suppression_compte_connecte');
 		} elseif (($row['id_auteur'] != $GLOBALS['visiteur_session']['id_auteur'])

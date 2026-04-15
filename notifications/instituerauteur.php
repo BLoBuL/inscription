@@ -92,7 +92,7 @@ function notifications_instituerauteur($quoi, $id_auteur, $options) {
 			)
 		);
 		if ($modele) {
-			if ($fonction_user == 'auteur_pass') {
+			if (isset($fonction_user) && $fonction_user == 'auteur_pass') {
 				$texte = email_notification_auteur_pass($id_auteur, $modele, $pass);
 			} else {
 				$texte = email_notification_objet($id_auteur, 'auteur', $modele);

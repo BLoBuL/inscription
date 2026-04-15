@@ -740,7 +740,7 @@ function inscription3_formulaire_traiter($flux) {
 		 * On a un mode avec pass fourni
 		 * Sinon un mode simple
 		 */
-		if (($config_i3['pass'] == 'on') and (strlen(_request('pass')))) {
+		if (($config_i3['pass'] == 'on') and (strlen((string)(_request('pass') ?? '')))) {
 			$mode = 'inscription_pass';
 		} else {
 			$mode = 'inscription';
@@ -776,9 +776,9 @@ function inscription3_formulaire_traiter($flux) {
 		// Apres on s'en fiche s'il n'est pas dans le formulaire
 		if (!isset($valeurs['login']) and !isset($nom)) {
 			if ($valeurs['nom_famille'] or $valeurs['prenom']) {
-				$valeurs['nom'] = trim($valeurs['prenom'].' '.$valeurs['nom_famille']);
+				$valeurs['nom'] = trim(($valeurs['prenom'] ?? '').' '.($valeurs['nom_famille'] ?? ''));
 			} else {
-				$valeurs['nom'] = strtolower(translitteration(preg_replace('/@.*/', '', $mail)));
+				$valeurs['nom'] = strtolower(translitteration(preg_replace('/@.*/', '', (string)$mail)));
 			}
 		} else {
 			$valeurs['nom'] = $nom;
@@ -806,13 +806,14 @@ function inscription3_formulaire_traiter($flux) {
 		 * Le compte est automatiquement activé
 		 */
 		if ($mode == 'inscription_pass') {
-			if (!is_null(_request('password')) && strlen(_request('password')) != 0) {
-				$new_pass = _request('password');
+			$new_pass = '';
+			if (strlen((string)(_request('password') ?? '')) !== 0) {
+				$new_pass = (string)_request('password');
 			} elseif ($mode == 'inscription_pass') {
-				$new_pass = _request('pass');
+				$new_pass = (string)(_request('pass') ?? '');
 			}
 
-			if (strlen($new_pass)>0) {
+			if (strlen($new_pass) > 0) {
 				include_spip('inc/acces');
 				include_spip('auth/sha256.inc');
 				$val['htpass'] = generer_htpass($new_pass);
@@ -821,7 +822,7 @@ function inscription3_formulaire_traiter($flux) {
 				$val['pass'] = _nano_sha256($val['alea_actuel'].$new_pass);
 				$val['low_sec'] = '';
 			}
-			$val['statut'] = (strlen($flux['args']['args'][0]) > 1) ?
+			$val['statut'] = (strlen((string)($flux['args']['args'][0] ?? '')) > 1) ?
 				$flux['args']['args'][0] : ($config_i3['statut_nouveau'] ?
 					$config_i3['statut_nouveau'] : '6forum');
 		}
@@ -835,7 +836,7 @@ function inscription3_formulaire_traiter($flux) {
 		 */
 		if ($config_i3['valider_comptes'] == 'on') {
 			$mode = 'aconfirmer';
-			if (!$val['bio']) {
+			if (empty($val['bio'])) {
 				$val['bio'] = '';
 			}
 			$val['statut'] = '8aconfirmer';
@@ -843,12 +844,12 @@ function inscription3_formulaire_traiter($flux) {
 			/**
 			 * Si on a le champ bio dans le formulaire on force le statut
 			 */
-			$val['statut'] = (strlen($flux['args']['args'][0]) > 1) ?
+			$val['statut'] = (strlen((string)($flux['args']['args'][0] ?? '')) > 1) ?
 				$flux['args']['args'][0] : ($config_i3['statut_nouveau'] ?
 					$config_i3['statut_nouveau'] : '6forum');
 		}
 
-		if (strlen($val['pass']) == 0) {
+		if (empty($val['pass'])) {
 			unset($val['pass']);
 		}
 
@@ -1336,16 +1337,14 @@ function inscription3_notifications_destinataires($flux) {
                 }                
 			}
             /**
-			 * Si aucun destinataire,
-			 */    
-			if(empty($liste_email_desti_notifs)) {
-            $emails = sql_allfetsel('email', 'spip_auteurs', 'statut="0minirezo" and webmestre="oui"');
-              foreach($emails_supp as $email_supp){
-                 if(email_valide($email_supp)){
-                     $liste_email_desti_notifs[]= $email_admin['email'];
-                 }
-			}
-        }
+			 * Si aucun destinataire configuré, on prend les webmestres
+			 */
+			if (empty($liste_email_desti_notifs)) {
+				$emails = sql_allfetsel('email', 'spip_auteurs', 'statut="0minirezo" and webmestre="oui"');
+				foreach ($emails as $email) {
+					$liste_email_desti_notifs[] = $email['email'];
+				}
+            }
 
         $flux['data'] = $liste_email_desti_notifs;
     }
