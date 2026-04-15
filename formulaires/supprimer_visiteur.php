@@ -97,7 +97,7 @@ function formulaires_supprimer_visiteur_traiter_dist() {
 	$auteur = sql_fetsel(
 		'id_auteur, statut',
 		'spip_auteurs',
-		'cookie_oubli='.sql_quote(_request('s')." AND statut<>'0minirezo' AND statut<>'1comite'")
+		'cookie_oubli='.sql_quote(_request('s'))." AND statut<>'0minirezo' AND statut<>'1comite'"
 	);
 
 	sql_delete('spip_auteurs', 'id_auteur='.intval($auteur['id_auteur']));
