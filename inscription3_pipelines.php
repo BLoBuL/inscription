@@ -405,8 +405,8 @@ function inscription3_formulaire_verifier($flux) {
 				if ($type) {
 					$poids = filesize($f);
 
-					if (_LOGO_MAX_SIZE > 0
-						and $poids > _LOGO_MAX_SIZE*1024) {
+								if (defined('_LOGO_MAX_SIZE') && _LOGO_MAX_SIZE > 0
+										and $poids > _LOGO_MAX_SIZE*1024) {
 						spip_unlink($f);
 						$erreur = _T(
 							'info_logo_max_poids',
@@ -415,9 +415,9 @@ function inscription3_formulaire_verifier($flux) {
 								'actuel' => taille_en_octets($poids)
 							)
 						);
-					} elseif (_LOGO_MAX_WIDTH * _LOGO_MAX_HEIGHT
-						and ($size[0] > _LOGO_MAX_WIDTH
-						or $size[1] > _LOGO_MAX_HEIGHT)) {
+									} elseif ((defined('_LOGO_MAX_WIDTH') && defined('_LOGO_MAX_HEIGHT')) && (_LOGO_MAX_WIDTH * _LOGO_MAX_HEIGHT)
+										and ($size[0] > _LOGO_MAX_WIDTH
+										or $size[1] > _LOGO_MAX_HEIGHT)) {
 						spip_unlink($f);
 						$erreur = _T(
 							'info_logo_max_poids',
@@ -425,8 +425,8 @@ function inscription3_formulaire_verifier($flux) {
 								'maxi' => _T(
 									'info_largeur_vignette',
 									array(
-										'largeur_vignette' => _LOGO_MAX_WIDTH,
-										'hauteur_vignette' => _LOGO_MAX_HEIGHT
+														'largeur_vignette' => (defined('_LOGO_MAX_WIDTH') ? _LOGO_MAX_WIDTH : ''),
+														'hauteur_vignette' => (defined('_LOGO_MAX_HEIGHT') ? _LOGO_MAX_HEIGHT : '')
 									)
 								),
 								'actuel' => _T(
@@ -715,7 +715,7 @@ function inscription3_formulaire_traiter($flux) {
 			}
 		}
 	}
-	if ($flux['args']['form']=='inscription') {
+	if ($flux['args']['form'] == 'inscription') {
 		if (!function_exists('lire_config')) {
 			include_spip('inc/config');
 		}
@@ -1299,7 +1299,9 @@ function inscription3_notifications_destinataires($flux) {
 		$id_auteur = $flux['args']['id'];
 		include_spip('base/abstract_sql');
 		$mail = sql_getfetsel('email', 'spip_auteurs', 'id_auteur='.intval($id_auteur));
-		$flux['data'][] = $mail;
+		if ($mail) {
+			$flux['data'][] = $mail;
+		}
 	} elseif (($quoi=='instituerauteur' and $options['statut_ancien'] == '8aconfirmer'
 		and $options['type'] == 'admin')
 		or ($quoi=='i3_inscriptionauteur' and $options['type'] == 'admin')) {
