@@ -985,7 +985,7 @@ function inscription3_recuperer_fond($flux) {
 		'formulaires/inscription',
 		'formulaires/login',
 		'formulaires/mot_de_passe',
-		'formulaires/editer_auteur'
+		'formulaires/editer_auteur',
 	);
 	if (in_array($flux['args']['fond'], $forms)) {
 		if (!function_exists('lire_config')) {
@@ -1054,8 +1054,16 @@ function inscription3_recuperer_fond($flux) {
 		if (
 			isset($config['inscription3/password_complexite'])
 			and $config['inscription3/password_complexite'] == 'on'
-			and in_array($flux['args']['fond'], array('formulaires/mot_de_passe','formulaires/editer_auteur'))) {
-			$js = recuperer_fond('formulaires/inc-js_pass_verification', $flux['data']['contexte']);
+			and in_array($flux['args']['fond'], array('formulaires/mot_de_passe', 'formulaires/editer_auteur', 'content/spip_pass'))) {
+			// Le nom du champ password diffère selon le formulaire :
+			// - mot_de_passe et spip_pass utilisent 'oubli'
+			// - editer_auteur utilise 'pass' (standard SPIP)
+			$fond_actuel = $flux['args']['fond'];
+			$nom_champ_pass = in_array($fond_actuel, array('formulaires/mot_de_passe', 'content/spip_pass'))
+				? 'oubli'
+				: 'pass';
+			$contexte_js = array_merge((array)($flux['data']['contexte'] ?? array()), array('password' => $nom_champ_pass));
+			$js = recuperer_fond('formulaires/inc-js_pass_verification', $contexte_js);
 			$flux['data']['texte'] = preg_replace('/(<\/form>)(.*)/Uims', "\\1".$js."\\2", $flux['data']['texte'], 1);
 		}
 	}
