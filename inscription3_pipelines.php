@@ -357,7 +357,7 @@ function inscription3_formulaire_verifier($flux) {
 		effacer_meta('inscription3');
 	}
 	if ($flux['args']['form']=='oubli') {
-		$erreurs = $flux['args']['erreurs'];
+		$erreurs = $flux['args']['erreurs'] ?? [];
 		if (!$erreurs or (count($erreurs) == 0)) {
 			$email = _request('oubli');
 			if (!empty($email)) {
