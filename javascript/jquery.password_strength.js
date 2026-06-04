@@ -109,7 +109,7 @@ $.fn.password_strength = function(options)
 			$(this).after(container);
 		}
 		
-		$(this).keyup(function()
+		$(this).on('keyup', function()
 		{
 			var val = $(this).val();
 			if (val.length > 0)
