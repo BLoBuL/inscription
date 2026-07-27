@@ -136,6 +136,7 @@ if (
 	|| strpos($configuration_cextras, 'name="cextras_inscription[]"') === false
 	|| strpos($configuration_cextras, '[fiche]') === false
 	|| strpos($configuration_cextras, '[table]') === false
+	|| strpos($configuration_cextras, 'inscription4-conditionnel') === false
 	|| strpos($configuration_cextras, '_nocreation"') !== false
 ) {
 	$erreurs[] = 'Le tableau CExtras doit utiliser la configuration structurée Inscription 4.';
@@ -254,6 +255,38 @@ $jeu = array(
 		),
 	),
 );
+$jeu_conditionnel = array(
+	array(
+		'saisie' => 'fieldset',
+		'options' => array('nom' => 'groupe_conditionnel', 'afficher_si' => '@choix@ == "oui"'),
+		'saisies' => array(
+			array(
+				'saisie' => 'input',
+				'options' => array('nom' => 'herite', 'sql' => "text DEFAULT '' NOT NULL"),
+			),
+			array(
+				'saisie' => 'input',
+				'options' => array(
+					'nom' => 'direct',
+					'sql' => "text DEFAULT '' NOT NULL",
+					'afficher_si' => '@detail@ != ""',
+				),
+			),
+		),
+	),
+	array(
+		'saisie' => 'input',
+		'options' => array('nom' => 'inconditionnel', 'sql' => "text DEFAULT '' NOT NULL"),
+	),
+);
+$conditions = inscription4_cextras_conditions_affichage($jeu_conditionnel);
+if (
+	count($conditions['herite'] ?? array()) !== 1
+	|| count($conditions['direct'] ?? array()) !== 2
+	|| isset($conditions['inconditionnel'])
+) {
+	$erreurs[] = 'Les conditions CExtras directes et héritées doivent être signalées dans la configuration.';
+}
 $filtre = inscription4_cextras_filtrer_saisies($jeu, array('externe'), array('interne'));
 $modifie = false;
 $configure = inscription4_cextras_mettre_a_jour_options(

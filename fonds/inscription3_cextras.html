@@ -1,4 +1,5 @@
 [(#SET{config,#VAL|inscription4_cextras_configuration})]
+[(#SET{conditions,#VAL|inscription4_cextras_conditions_affichage})]
 <B_cextras>
 <li class="fieldset" id="cextras">
 	<fieldset>
@@ -25,11 +26,18 @@
 					#SET{fiche,#GET{reglage}|table_valeur{fiche}}
 					#SET{tableau,#GET{reglage}|table_valeur{table}}
 					#SET{obligatoire,#GET{reglage}|table_valeur{obligatoire}}
-					<tr>
+					#SET{conditionnel,#GET{conditions}|table_valeur{#GET{nom}}}
+					<tr[(#GET{conditionnel}|oui) class="conditionnel"]>
 						<td>
 							<label for="cextra_#GET{nom}_afficher">
 								<strong>[(#VALEUR{options/label}|sinon{#VALEUR{options/label_case}}|sinon{#GET{nom}}|_T_ou_typo)]</strong>
 								<small><code>#GET{nom}</code></small>
+								[(#GET{conditionnel}|oui)
+									<span class="inscription4-conditionnel" title="<:inscription4:explication_cextra_conditionnel|attribut_html:>">
+										<span aria-hidden="true">&#9670;</span>
+										<:inscription4:label_cextra_conditionnel:>
+									</span>
+								]
 							</label>
 						</td>
 						<td>#VALEUR{saisie}</td>

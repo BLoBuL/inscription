@@ -50,6 +50,47 @@ function inscription4_cextras_liste_configurable() {
 }
 
 /**
+ * Recense les conditions d'affichage directes ou héritées de chaque CExtra.
+ *
+ * Un champ placé dans un fieldset conditionnel est lui aussi signalé, même
+ * lorsque sa propre option afficher_si est vide.
+ */
+function inscription4_cextras_conditions_affichage($saisies = null) {
+	if ($saisies === null) {
+		$saisies = inscription4_cextras_saisies_disponibles();
+	}
+
+	$resultat = array();
+	$parcourir = function ($elements, $conditions_parentes = array()) use (&$parcourir, &$resultat) {
+		foreach ((array) $elements as $saisie) {
+			if (!is_array($saisie)) {
+				continue;
+			}
+
+			$conditions = $conditions_parentes;
+			$afficher_si = $saisie['options']['afficher_si'] ?? '';
+			if (is_scalar($afficher_si) && trim((string) $afficher_si) !== '') {
+				$conditions[] = trim((string) $afficher_si);
+			}
+			$conditions = array_values(array_unique($conditions));
+
+			if (!empty($saisie['saisies'])) {
+				$parcourir($saisie['saisies'], $conditions);
+				continue;
+			}
+
+			$nom = $saisie['options']['nom'] ?? '';
+			if ($nom && !empty($saisie['options']['sql']) && $conditions) {
+				$resultat[$nom] = $conditions;
+			}
+		}
+	};
+	$parcourir($saisies);
+
+	return $resultat;
+}
+
+/**
  * Normalise les différentes écritures booléennes utilisées par Saisies.
  */
 function inscription4_cextras_est_obligatoire($valeur) {
