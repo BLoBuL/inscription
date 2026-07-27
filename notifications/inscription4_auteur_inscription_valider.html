@@ -3,15 +3,15 @@
 ]
 [(#HTTP_HEADER{Content-type: text/plain[; charset=(#CHARSET)]})]
 <BOUCLE_aut(AUTEURS){id_auteur}{tout}>
-[(#VAL{inscription3:message_auteur_inscription_valider_titre_user}|_T{#ARRAY{nom_site_spip,#NOM_SITE_SPIP}}|nettoyer_titre_email)]
+[(#VAL{inscription3:message_auteur_inscription4_valider_titre_user}|_T{#ARRAY{nom_site_spip,#NOM_SITE_SPIP}}|nettoyer_titre_email)]
 
 <:form_forum_message_auto:>
 
 <:form_forum_bonjour{nom=#NOM}:>
 
-<:inscription3:message_auteur_inscription_valider_contenu_user:>
+<:inscription3:message_auteur_inscription4_valider_contenu_user:>
 
-<:inscription3:message_auteur_validation_lien:>
+<:inscription3:message_auteur_inscription4_validation_lien:>
 #ENV{url_reset}
 
 </BOUCLE_aut>

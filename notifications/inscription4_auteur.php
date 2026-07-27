@@ -23,8 +23,8 @@ function notifications_inscription4_auteur($quoi, $id_auteur, $options) {
 	$modele_admin = false;
 
 	if ($statut_nouveau === '8aconfirmer') {
-		$modele = 'notifications/auteur_inscription_confirmer';
-		$modele_admin = 'notifications/auteur_inscription_confirmer_admin';
+		$modele = 'notifications/inscription4_auteur_attente';
+		$modele_admin = 'notifications/inscription4_auteur_attente_admin';
 	}
 
 	if (

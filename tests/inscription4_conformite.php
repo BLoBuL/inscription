@@ -117,8 +117,11 @@ if (
 }
 
 $options = file_get_contents($racine . '/inscription3_options.php');
-if (preg_match('/function\s+envoyer_inscription\s*\(/', $options)) {
-	$erreurs[] = 'Le mail natif envoyer_inscription de SPIP ne doit pas être neutralisé.';
+if (
+	!preg_match('/function\s+envoyer_inscription\s*\(/', $options)
+	|| strpos($options, 'return envoyer_inscription_dist($desc, $nom, $mode, $options);') === false
+) {
+	$erreurs[] = 'L’adaptation du courriel natif doit toujours déléguer son rendu final à SPIP.';
 }
 $fonctions = file_get_contents($racine . '/inscription3_fonctions.php');
 if (
@@ -218,11 +221,15 @@ if (
 }
 $notification_securisee = file_get_contents($racine . '/notifications/inscription4_auteur.php');
 $modele_securise = file_get_contents($racine . '/notifications/inscription4_auteur_inscription_valider.html');
+$options_inscription4 = file_get_contents($racine . '/inscription3_options.php');
+$modele_attente = file_get_contents($racine . '/notifications/inscription4_auteur_attente.html');
+$modele_attente_admin = file_get_contents($racine . '/notifications/inscription4_auteur_attente_admin.html');
 if (
 	strpos($pipeline_cextras, "\$notifications('inscription4_auteur'") === false
 	|| strpos($notification_securisee, 'auteur_lire_jeton((int) $id_auteur, true)') === false
 	|| strpos($notification_securisee, 'inscription4_auteur_inscription_valider') === false
 	|| strpos($modele_securise, '#ENV{url_reset}') === false
+	|| strpos($modele_securise, 'message_auteur_inscription4_valider_contenu_user') === false
 	|| preg_match('/#ENV\\{(?:pass|password)\\}/i', $modele_securise)
 ) {
 	$erreurs[] = 'La validation doit utiliser une notification Inscription 4 non surchargeable et un lien SPIP sécurisé.';
@@ -230,8 +237,37 @@ if (
 if (
 	strpos($pipeline_cextras, "'notifier_utilisateur' => !_request('_inscription4_mail_attente_natif')") === false
 	|| strpos($notification_securisee, "\$options['notifier_utilisateur'] ?? true") === false
+	|| strpos($options_inscription4, 'function envoyer_inscription(') === false
+	|| strpos($options_inscription4, "lire_config('inscription3/valider_comptes') === 'on'") === false
+	|| strpos($options_inscription4, "'notifications/inscription4_auteur_attente'") === false
+	|| strpos($options_inscription4, "set_request('_inscription4_mail_attente_natif', 1)") === false
 ) {
 	$erreurs[] = 'Le mail d’attente natif doit empêcher le doublon utilisateur sans supprimer la notification administrateur.';
+}
+if (
+	strpos($notification_securisee, 'notifications/inscription4_auteur_attente') === false
+	|| strpos($notification_securisee, 'notifications/inscription4_auteur_attente_admin') === false
+	|| preg_match('/#ENV\\{(?:pass|password|url_reset|url_confirm)\\}/i', $modele_attente)
+	|| preg_match('/#ENV\\{(?:pass|password|url_reset|url_confirm)\\}/i', $modele_attente_admin)
+) {
+	$erreurs[] = 'Les messages d’attente doivent être propres à Inscription 4 et ne contenir aucun secret ni lien utilisable.';
+}
+$cles_notifications = array(
+	'message_auteur_inscription_attente_contenu_admin',
+	'message_auteur_inscription_attente_contenu_user',
+	'message_auteur_inscription_attente_titre_admin',
+	'message_auteur_inscription_attente_titre_user',
+	'message_auteur_inscription4_valider_contenu_user',
+	'message_auteur_inscription4_valider_titre_user',
+	'message_auteur_inscription4_validation_lien',
+);
+foreach (array('fr', 'en', 'es', 'de', 'nl') as $langue_notification) {
+	$contenu_langue = file_get_contents($racine . '/lang/inscription3_' . $langue_notification . '.php');
+	foreach ($cles_notifications as $cle_notification) {
+		if (strpos($contenu_langue, "'$cle_notification'") === false) {
+			$erreurs[] = "La notification $cle_notification manque en langue $langue_notification.";
+		}
+	}
 }
 $administration = file_get_contents($racine . '/inscription3_administrations.php');
 if (!preg_match("/\\\$maj\\['create'\\]\\[\\]\\s*=\\s*array\\('i3_migrer_pays'\\)/", $administration)) {
