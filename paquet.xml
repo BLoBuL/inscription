@@ -1,7 +1,7 @@
 <paquet
 	prefix="inscription4"
 	categorie="auteur"
-	version="4.1.9"
+	version="4.1.10"
 	etat="stable"
 	compatibilite="[4.1.0;4.*]"
 	logo="prive/themes/spip/images/inscription3-64.png"
@@ -43,6 +43,7 @@
 	<pipeline nom="taches_generales_cron" inclure="inscription3_pipelines.php" />
 	<pipeline nom="openid_recuperer_identite" inclure="inscription3_pipelines.php" />
 	<pipeline nom="openid_inscrire_redirect" inclure="inscription3_pipelines.php" />
+	<pipeline nom="pre_edition" inclure="inscription3_pipelines.php" />
 	<pipeline nom="post_edition" inclure="inscription3_pipelines.php" />
 	<pipeline nom="saisies_construire_formulaire_config" inclure="inscription3_pipelines.php" />
 

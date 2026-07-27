@@ -79,6 +79,7 @@ foreach (array(
 	'taches_generales_cron',
 	'openid_recuperer_identite',
 	'openid_inscrire_redirect',
+	'pre_edition',
 	'post_edition',
 	'saisies_construire_formulaire_config',
 ) as $pipeline_inscription4) {
@@ -219,6 +220,13 @@ if (
 ) {
 	$erreurs[] = 'Inscription 4 ne doit pas masquer ou réécrire le parcours de mot de passe natif.';
 }
+if (
+	strpos($pipeline_cextras, "unset(\$val['statut']);") === false
+	|| strpos($pipeline_cextras, "\$flux['data']['prefs'] = \$flux['data']['statut'];") === false
+	|| strpos($pipeline_cextras, "\$flux['data']['statut'] = 'nouveau';") === false
+) {
+	$erreurs[] = 'Le cycle de validation doit conserver le statut final dans prefs et repasser par nouveau.';
+}
 $notification_securisee = file_get_contents($racine . '/notifications/inscription4_auteur.php');
 $modele_securise = file_get_contents($racine . '/notifications/inscription4_auteur_inscription_valider.html');
 $options_inscription4 = file_get_contents($racine . '/inscription3_options.php');
@@ -309,8 +317,48 @@ if (
 if (!defined('_ECRIRE_INC_VERSION')) {
 	define('_ECRIRE_INC_VERSION', 1);
 }
+require_once $racine . '/inscription3_pipelines.php';
 require_once $racine . '/formulaires/inscription3_cextras_fonctions.php';
 require_once $racine . '/verifier/telephone.php';
+$validation_native = inscription3_pre_edition(array(
+	'args' => array(
+		'action' => 'instituer',
+		'table' => 'spip_auteurs',
+		'statut_ancien' => '8aconfirmer',
+	),
+	'data' => array('statut' => '6forum'),
+));
+if (
+	($validation_native['data']['statut'] ?? '') !== 'nouveau'
+	|| ($validation_native['data']['prefs'] ?? '') !== '6forum'
+) {
+	$erreurs[] = 'La validation administrative doit produire nouveau avec prefs=6forum.';
+}
+$validation_native_redacteur = inscription3_pre_edition(array(
+	'args' => array(
+		'action' => 'instituer',
+		'table' => 'spip_auteurs',
+		'statut_ancien' => '8aconfirmer',
+	),
+	'data' => array('statut' => '1comite'),
+));
+if (
+	($validation_native_redacteur['data']['statut'] ?? '') !== 'nouveau'
+	|| ($validation_native_redacteur['data']['prefs'] ?? '') !== '1comite'
+) {
+	$erreurs[] = 'La validation administrative doit aussi préserver la cible 1comite.';
+}
+$refus_natif = inscription3_pre_edition(array(
+	'args' => array(
+		'action' => 'instituer',
+		'table' => 'spip_auteurs',
+		'statut_ancien' => '8aconfirmer',
+	),
+	'data' => array('statut' => '5poubelle'),
+));
+if (($refus_natif['data']['statut'] ?? '') !== '5poubelle' || isset($refus_natif['data']['prefs'])) {
+	$erreurs[] = 'Le refus administratif doit conserver le statut 5poubelle.';
+}
 $telephones_internationaux_valides = array(
 	'+33 6 12 34 56 78',
 	'+1 (202) 555-0123',

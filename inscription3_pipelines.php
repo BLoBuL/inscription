@@ -757,13 +757,11 @@ function inscription3_formulaire_traiter($flux) {
 				$val['bio'] = '';
 			}
 			$val['statut'] = '8aconfirmer';
-		} elseif (_request('bio')) {
-			/**
-			 * Si on a le champ bio dans le formulaire on force le statut
-			 */
-			$val['statut'] = (strlen((string)($flux['args']['args'][0] ?? '')) > 1) ?
-				$flux['args']['args'][0] : (($config_i3['statut_nouveau'] ?? '') ?
-					$config_i3['statut_nouveau'] : '6forum');
+		} else {
+			// Sans validation administrative, le noyau conserve le statut
+			// `nouveau` jusqu'à la première authentification. Le statut final
+			// est déjà mémorisé par SPIP dans `prefs`.
+			unset($val['statut']);
 		}
 
 		// Les secrets et champs internes d'authentification appartiennent
@@ -1322,6 +1320,10 @@ function inscription4_openid_inscrire_redirect($flux) {
 	return inscription3_openid_inscrire_redirect($flux);
 }
 
+function inscription4_pre_edition($flux) {
+	return inscription3_pre_edition($flux);
+}
+
 function inscription4_post_edition($flux) {
 	return inscription3_post_edition($flux);
 }
@@ -1423,6 +1425,30 @@ function inscription3_openid_inscrire_redirect($flux) {
 	$url = parametre_url($url, 'nom_famille', $auteur['nom_famille']);
 	$url = parametre_url($url, 'prenom', $auteur['prenom']);
 	$flux['data'] = $url;
+	return $flux;
+}
+
+/**
+ * Insertion dans le pipeline pre_edition (SPIP).
+ *
+ * Une validation administrative ne doit pas activer immédiatement le compte.
+ * Le statut choisi devient la cible native conservée dans `prefs`, tandis que
+ * l'auteur repasse par `nouveau` jusqu'à sa première authentification.
+ *
+ * @param array $flux
+ * @return array
+ */
+function inscription3_pre_edition($flux) {
+	if (
+		($flux['args']['action'] ?? '') === 'instituer'
+		&& ($flux['args']['table'] ?? '') === 'spip_auteurs'
+		&& ($flux['args']['statut_ancien'] ?? '') === '8aconfirmer'
+		&& in_array(($flux['data']['statut'] ?? ''), array('6forum', '1comite'), true)
+	) {
+		$flux['data']['prefs'] = $flux['data']['statut'];
+		$flux['data']['statut'] = 'nouveau';
+	}
+
 	return $flux;
 }
 
