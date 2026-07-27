@@ -16,7 +16,7 @@ if ((string) $paquet['prefix'] !== 'inscription4') {
 if ((string) $paquet['compatibilite'] !== '[4.1.0;4.*]') {
 	$erreurs[] = 'La compatibilité doit être limitée à SPIP 4.';
 }
-if ((string) $paquet['schema'] !== '4.0.0') {
+if ((string) $paquet['schema'] !== '4.0.1') {
 	$erreurs[] = 'Le schéma doit inclure la migration de configuration CExtras.';
 }
 $procure_inscription3 = false;
@@ -49,6 +49,36 @@ foreach ($paquet->pipeline as $declaration) {
 	$action = (string) $declaration['action'];
 	if ($action && strpos($code_php, "function $action(") === false) {
 		$erreurs[] = "Action de pipeline introuvable : $action.";
+	}
+}
+foreach (array(
+	'i3_exceptions_des_champs_auteurs_elargis',
+	'i3_exceptions_chargement_champs_auteurs_elargis',
+	'i3_verifications_specifiques',
+	'i3_definition_champs',
+	'declarer_champs_extras',
+	'autoriser',
+	'pre_insertion',
+	'affiche_droite',
+	'recuperer_fond',
+	'formulaire_charger',
+	'formulaire_verifier',
+	'formulaire_traiter',
+	'editer_contenu_objet',
+	'notifications_destinataires',
+	'taches_generales_cron',
+	'openid_recuperer_identite',
+	'openid_inscrire_redirect',
+	'post_edition',
+) as $pipeline_inscription4) {
+	if (strpos($code_php, "function inscription4_$pipeline_inscription4(") === false) {
+		$erreurs[] = "Point d’entrée Inscription 4 absent pour le pipeline $pipeline_inscription4.";
+	}
+}
+foreach ($paquet->pipeline as $declaration) {
+	if (strpos((string) $declaration['action'], 'inscription3_') === 0) {
+		$erreurs[] = 'Un handler de pipeline Inscription 3 serait doublement préfixé par le paquet Inscription 4.';
+		break;
 	}
 }
 
@@ -128,9 +158,21 @@ if (
 ) {
 	$erreurs[] = 'La validation doit utiliser une notification Inscription 4 non surchargeable et un lien SPIP sécurisé.';
 }
+if (
+	strpos($pipeline_cextras, "'notifier_utilisateur' => !_request('_inscription4_mail_attente_natif')") === false
+	|| strpos($notification_securisee, "\$options['notifier_utilisateur'] ?? true") === false
+) {
+	$erreurs[] = 'Le mail d’attente natif doit empêcher le doublon utilisateur sans supprimer la notification administrateur.';
+}
 $administration = file_get_contents($racine . '/inscription3_administrations.php');
 if (!preg_match("/\\\$maj\\['create'\\]\\[\\]\\s*=\\s*array\\('i3_migrer_pays'\\)/", $administration)) {
 	$erreurs[] = 'Une première activation d’Inscription 4 doit migrer les pays historiques.';
+}
+if (
+	strpos($administration, "sql_showtable('spip_auteurs'") === false
+	|| strpos($administration, "['field']['pays']") === false
+) {
+	$erreurs[] = 'La migration Pays doit vérifier la présence de la colonne historique auteurs.pays.';
 }
 if (
 	strpos($administration, 'inscription4_cextras_liste_configurable()') === false

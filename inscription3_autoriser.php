@@ -15,6 +15,13 @@ function inscription3_autoriser() {
 }
 
 /**
+ * Point d'entrée du pipeline sous le préfixe Inscription 4.
+ */
+function inscription4_autoriser() {
+	return inscription3_autoriser();
+}
+
+/**
  * Autoriser les utilisateurs à modifier leur profil
  *
  * On garde les autorisations par défaut pour les administrateurs et les rédacteurs

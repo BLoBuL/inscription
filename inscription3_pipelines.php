@@ -870,7 +870,10 @@ function inscription3_formulaire_traiter($flux) {
 					$traiter_plugin['message_ok'] = _T('inscription3:form_retour_aconfirmer');
 					if ($notifications = charger_fonction('notifications', 'inc')) {
 						$notifications('inscription4_auteur', $user['id_auteur'],
-							array('statut' => '8aconfirmer')
+							array(
+								'statut' => '8aconfirmer',
+								'notifier_utilisateur' => !_request('_inscription4_mail_attente_natif'),
+							)
 						);
 					}
 				} else {
@@ -1290,6 +1293,67 @@ function inscription4_ajouter_menus($menus) {
  */
 function inscription4_formulaire_charger($flux) {
 	return inscription3_formulaire_charger($flux);
+}
+
+/**
+ * Points d'entrée des pipelines sous le préfixe Inscription 4.
+ *
+ * Les fonctions inscription3_* restent l'API historique publique.
+ */
+function inscription4_i3_exceptions_chargement_champs_auteurs_elargis($flux = array()) {
+	return inscription3_i3_exceptions_chargement_champs_auteurs_elargis($flux);
+}
+
+function inscription4_i3_exceptions_des_champs_auteurs_elargis($flux = array()) {
+	return inscription3_i3_exceptions_des_champs_auteurs_elargis($flux);
+}
+
+function inscription4_i3_verifications_specifiques($flux = array()) {
+	return inscription3_i3_verifications_specifiques($flux);
+}
+
+function inscription4_i3_definition_champs($flux = array()) {
+	return inscription3_i3_definition_champs($flux);
+}
+
+function inscription4_pre_insertion($flux) {
+	return inscription3_pre_insertion($flux);
+}
+
+function inscription4_affiche_droite($flux) {
+	return inscription3_affiche_droite($flux);
+}
+
+function inscription4_recuperer_fond($flux) {
+	return inscription3_recuperer_fond($flux);
+}
+
+function inscription4_formulaire_verifier($flux) {
+	return inscription3_formulaire_verifier($flux);
+}
+
+function inscription4_formulaire_traiter($flux) {
+	return inscription3_formulaire_traiter($flux);
+}
+
+function inscription4_editer_contenu_objet($flux) {
+	return inscription3_editer_contenu_objet($flux);
+}
+
+function inscription4_notifications_destinataires($flux) {
+	return inscription3_notifications_destinataires($flux);
+}
+
+function inscription4_openid_recuperer_identite($flux) {
+	return inscription3_openid_recuperer_identite($flux);
+}
+
+function inscription4_openid_inscrire_redirect($flux) {
+	return inscription3_openid_inscrire_redirect($flux);
+}
+
+function inscription4_post_edition($flux) {
+	return inscription3_post_edition($flux);
 }
 
 /**

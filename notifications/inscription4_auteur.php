@@ -40,7 +40,7 @@ function notifications_inscription4_auteur($quoi, $id_auteur, $options) {
 		$modele_admin = 'notifications/auteur_inscription_verifier_admin';
 	}
 
-	if ($modele) {
+	if ($modele && ($options['notifier_utilisateur'] ?? true)) {
 		$options['type'] = 'user';
 		$destinataires = pipeline(
 			'notifications_destinataires',

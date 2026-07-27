@@ -98,3 +98,10 @@ function inscription3_declarer_champs_extras($champs = array()) {
 	}
 	return $champs;
 }
+
+/**
+ * Point d'entrée du pipeline sous le préfixe Inscription 4.
+ */
+function inscription4_declarer_champs_extras($champs = array()) {
+	return inscription3_declarer_champs_extras($champs);
+}

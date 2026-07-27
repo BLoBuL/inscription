@@ -83,6 +83,9 @@ function inscription3_upgrade($nom_meta_base_version, $version_cible) {
 	$maj['4.0.0'] = array(
 		array('inscription4_migrer_configuration_cextras'),
 	);
+	$maj['4.0.1'] = array(
+		array('i3_migrer_pays'),
+	);
 
 	include_spip('base/upgrade');
 	maj_plugin($nom_meta_base_version, $version_cible, $maj);
@@ -154,6 +157,15 @@ function inscription3_vider_tables($nom_meta_base_version) {
 function i3_migrer_pays() {
 	$ancienne_table = sql_showtable('spip_geo_pays', '', false);
 	if (empty($ancienne_table['field'])) {
+		return true;
+	}
+
+	$table_auteurs = sql_showtable('spip_auteurs', '', false);
+	if (empty($table_auteurs['field']['pays'])) {
+		spip_log(
+			'Migration vers le plugin Pays ignorée : la colonne historique spip_auteurs.pays est absente.',
+			'inscription3.' . _LOG_INFO
+		);
 		return true;
 	}
 
