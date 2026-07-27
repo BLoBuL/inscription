@@ -1407,7 +1407,7 @@ function inscription3_openid_recuperer_identite($flux) {
 	}
 
 	if (isset($flux['args']['country'])) {
-		$id_pays = sql_getfetsel('id_pays', 'spip_geo_pays', 'code_iso='.sql_quote($flux['args']['country']));
+		$id_pays = sql_getfetsel('id_pays', 'spip_pays', 'code='.sql_quote($flux['args']['country']));
 		$flux['data']['pays'] = $id_pays;
 	}
 	if (isset($flux['args']['postcode'])) {

@@ -16,12 +16,12 @@ if (!defined('_ECRIRE_INC_VERSION')) {
  * Donne le nom d'un pays en fonction de son id
  *
  * @return false|string false dans le cas ou il ne reçoit pas de paramètres ou si le paramètre n'est pas bon
- * @param int $id_pays L'id_pays de la table spip_geo_pays
+ * @param int $id_pays L'id_pays de la table spip_pays
  */
 if (!function_exists('id_pays_to_pays')) {
 	function id_pays_to_pays($id_pays) {
 		if ((is_numeric($id_pays)) and ($id_pays != 0)) {
-			$pays = sql_getfetsel('nom', 'spip_geo_pays', 'id_pays ='.$id_pays);
+			$pays = sql_getfetsel('nom', 'spip_pays', 'id_pays ='.intval($id_pays));
 			return typo($pays);
 		} else {
 			return;
@@ -197,7 +197,7 @@ function inscription3_recuperer_champs($champs, $id_auteur) {
 	if ($champs == 'pays') {
 		$resultat = sql_getfetsel(
 			'b.nom',
-			'spip_auteurs a LEFT JOIN spip_geo_pays b on a.pays = b.id_pays',
+			'spip_auteurs a LEFT JOIN spip_pays b on a.pays = b.id_pays',
 			"a.id_auteur=$id_auteur"
 		);
 		return typo($resultat);

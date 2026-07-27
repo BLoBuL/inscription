@@ -46,9 +46,7 @@ function inscription3_upgrade($nom_meta_base_version, $version_cible) {
 
 	$maj = array();
 
-	$maj['create'] = array(
-		array('i3_installer_pays','')
-	);
+	$maj['create'] = array();
 	if (!is_array($inscription3_meta)) {
 		$maj['create'][] = array('ecrire_meta','inscription3',serialize(array(
 						'nom_fiche_mod' => 'on',
@@ -72,8 +70,9 @@ function inscription3_upgrade($nom_meta_base_version, $version_cible) {
 		$maj['create'][] = array('inscription3_transfert_infos_auteurs');
 	}
 
-	$maj['3.0.2'] = array(
-		array('i3_installer_pays',array()),
+	$maj['3.0.2'] = array();
+	$maj['3.1.0'] = array(
+		array('i3_migrer_pays'),
 	);
 
 	include_spip('base/upgrade');
@@ -85,50 +84,100 @@ function inscription3_upgrade($nom_meta_base_version, $version_cible) {
  * Fonction de suppession du plugin
  *
  * Supprime la méta de configuration d'inscription3
- * Supprime la table des pays si nécessaire
- *
  * @param string $nom_meta_base_version Le nom de la méta d'installation
  */
 function inscription3_vider_tables($nom_meta_base_version) {
 	effacer_meta('inscription3');
-	if (!defined('_DIR_PLUGIN_GEOGRAPHIE')) {
-		sql_drop_table('spip_geo_pays');
-	}
 	effacer_meta($nom_meta_base_version);
 }
 
 
 /**
- * Installe ou réinstalle la table des pays
- * Dans tous les cas cette fonction réinstallera le contenu de la table spip_geo_pays
+ * Migre les sites utilisant encore spip_geo_pays vers le plugin Pays.
+ *
+ * Les correspondances sont établies avec le code ISO afin de ne pas dépendre
+ * des identifiants historiques. Les éventuels pays personnalisés sont copiés
+ * dans spip_pays avant de remapper les auteurs.
  */
-function i3_installer_pays() {
-	if (!defined('_DIR_PLUGIN_GEOGRAPHIE')) {
-		include_spip('inc/charsets');
-		// 1) suppression de la table existante
-		// pour redemarrer les insert a zero
-		$descpays = sql_showtable('spip_geo_pays', '', false);
-		if (isset($descpays['field'])) {
-			sql_drop_table('spip_geo_pays');
+function i3_migrer_pays() {
+	$ancienne_table = sql_showtable('spip_geo_pays', '', false);
+	if (empty($ancienne_table['field'])) {
+		return true;
+	}
+
+	$anciens_pays = sql_allfetsel('id_pays, code_iso, nom', 'spip_geo_pays');
+	$pays_officiels = sql_allfetsel('id_pays, code', 'spip_pays');
+	$ids_par_code = array_column($pays_officiels, 'id_pays', 'code');
+	$correspondances = array();
+	$erreurs = array();
+
+	foreach ($anciens_pays as $ancien_pays) {
+		$ancien_id = intval($ancien_pays['id_pays']);
+		$code = strtoupper(trim($ancien_pays['code_iso']));
+		if (!$code) {
+			$erreurs[] = $ancien_id;
+			continue;
 		}
-		// 2) recreation de la table
-		creer_base();
-		if (($descpays = sql_showtable('spip_geo_pays', '', false)) and isset($descpays['field'])) {
-			// 3) installation des entrees
-			// importer les pays
-			include_spip('imports/pays');
-			foreach ($GLOBALS['liste_pays'] as $k => $p) {
-				sql_insertq(
-					'spip_geo_pays',
-					array(
-						'id_pays' => $k,
-						'code_iso' => $p['code_iso'],
-						'nom' => unicode2charset(html2unicode($p['nom']))
-					)
-				);
+
+		if (!isset($ids_par_code[$code])) {
+			$nouvel_id = sql_insertq(
+				'spip_pays',
+				array(
+					'code' => $code,
+					'nom' => $ancien_pays['nom'],
+				)
+			);
+			if (!$nouvel_id) {
+				$erreurs[] = $ancien_id;
+				continue;
 			}
+			$ids_par_code[$code] = $nouvel_id;
+		}
+
+		$correspondances[$ancien_id] = intval($ids_par_code[$code]);
+	}
+
+	if ($erreurs) {
+		spip_log(
+			'Migration vers le plugin Pays interrompue : pays sans code ISO exploitable : '
+				. implode(', ', array_unique($erreurs)),
+			'inscription3.' . _LOG_ERREUR
+		);
+		return false;
+	}
+
+	$ids_utilises = array_map(
+		'intval',
+		array_column(
+			sql_allfetsel(
+				'DISTINCT pays AS id_pays',
+				'spip_auteurs',
+				'pays IS NOT NULL AND pays != 0'
+			),
+			'id_pays'
+		)
+	);
+	$ids_sans_correspondance = array_diff($ids_utilises, array_keys($correspondances));
+	if ($ids_sans_correspondance) {
+		spip_log(
+			'Migration vers le plugin Pays interrompue : identifiants hérités introuvables : '
+				. implode(', ', $ids_sans_correspondance),
+			'inscription3.' . _LOG_ERREUR
+		);
+		return false;
+	}
+
+	foreach ($correspondances as $ancien_id => $nouvel_id) {
+		if ($ancien_id !== $nouvel_id) {
+			sql_updateq(
+				'spip_auteurs',
+				array('pays' => $nouvel_id),
+				'pays = ' . $ancien_id
+			);
 		}
 	}
+
+	sql_drop_table('spip_geo_pays');
 	return true;
 }
 

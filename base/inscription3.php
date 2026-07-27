@@ -11,36 +11,6 @@ if (!defined('_ECRIRE_INC_VERSION')) {
 	return;
 }
 
-function inscription3_declarer_tables_interfaces($interface) {
-	$interface['table_des_tables']['geo_pays'] = 'geo_pays';
-	return $interface;
-}
-
-function inscription3_declarer_tables_principales($tables_principales) {
-	/**
-	 * A partir de Inscription 2 (0.70)
-	 * on utilise le plugin geographie pour gerer les pays.
-	 * on ne le rend pas obligatoire en creant la table spip_geo_pays
-	 * si le plugin n'est pas installe
-	 */
-
-	/* penser a modifier si le plugin geographie modifie cette table */
-	$spip_geo_pays = array(
-		'id_pays'	=> 'smallint NOT NULL',
-		'code_iso'	=> "varchar(2) NOT NULL default ''",
-		'nom'	=> "text DEFAULT '' NOT NULL"
-	);
-	$spip_geo_pays_key = array(
-		'PRIMARY KEY' => 'id_pays',
-		'UNIQUE KEY code_iso'	=> 'code_iso'
-	);
-	$tables_principales['spip_geo_pays'] = array(
-		'field' => &$spip_geo_pays,
-		'key' => &$spip_geo_pays_key);
-
-	return $tables_principales;
-}
-
 function inscription3_declarer_champs_extras($champs = array()) {
 	include_spip('inc/config');
 
