@@ -22,6 +22,14 @@ function inscription4_autoriser() {
 }
 
 /**
+ * La liste étendue des adhérents expose des données personnelles et des
+ * actions en masse : elle est réservée aux administrateurs.
+ */
+function autoriser_inscription3adherents_voir_dist($faire, $type, $id, $qui, $opt) {
+	return ($qui['statut'] ?? '') === '0minirezo';
+}
+
+/**
  * Autoriser les utilisateurs à modifier leur profil
  *
  * On garde les autorisations par défaut pour les administrateurs et les rédacteurs

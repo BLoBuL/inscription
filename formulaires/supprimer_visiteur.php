@@ -118,7 +118,17 @@ function formulaires_supprimer_visiteur_traiter_dist() {
 		return array('message_erreur' => _T('inscription3:erreur_effacement_auto_impossible'));
 	}
 
-	sql_delete('spip_auteurs', 'id_auteur='.intval($auteur['id_auteur']));
+	include_spip('inscription3_pipelines');
+	$erreur = inscription4_auteur_modifier_interne(
+		(int) $auteur['id_auteur'],
+		array('statut' => '5poubelle')
+	);
+	if ($erreur) {
+		return array('message_erreur' => $erreur);
+	}
+
+	include_spip('inc/session');
+	supprimer_sessions((int) $auteur['id_auteur']);
 
 	$message = _T('inscription3:message_compte_efface');
 	return array('message_ok' => $message);

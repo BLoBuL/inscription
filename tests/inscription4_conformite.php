@@ -103,6 +103,16 @@ foreach (array('_nano_sha256', 'generer_htpass') as $motif) {
 if (preg_match('/\\$val\\[(?:[\'"])(?:pass|htpass|alea_actuel|alea_futur)(?:[\'"])\\]\\s*=/', $pipeline)) {
 	$erreurs[] = 'Écriture directe d’un champ d’authentification détectée.';
 }
+if (strpos($pipeline, '$_GET') !== false) {
+	$erreurs[] = 'Les paramètres GET ne doivent jamais être fusionnés aux options de vérification.';
+}
+if (
+	strpos($pipeline, "\$flux['data']['id_auteur']") === false
+	|| strpos($pipeline, '_inscription4_id_auteur_existant') === false
+	|| strpos($pipeline, "sql_fetsel('*', 'spip_auteurs', 'email='") !== false
+) {
+	$erreurs[] = 'Le traitement doit cibler exclusivement l’auteur retourné par le formulaire natif.';
+}
 if (
 	!preg_match(
 		'/\\$flux\\[\'creation\'\\]\\s*=\\s*array\\((.*?)\\n\\t\\);\\n\\t\\$flux\\[\'naissance\'\\]/s',
@@ -135,6 +145,20 @@ if (
 $suppression = file_get_contents($racine . '/formulaires/supprimer_visiteur.php');
 if (strpos($suppression, "cookie_oubli=") !== false) {
 	$erreurs[] = 'La suppression de compte doit vérifier le jeton avec l’API SPIP 4.';
+}
+if (strpos($suppression, "sql_delete('spip_auteurs'") !== false) {
+	$erreurs[] = 'La suppression de compte ne doit pas supprimer directement une ligne auteur.';
+}
+$recherche_privee = file_get_contents($racine . '/formulaires/inscription3_recherche.php');
+if (
+	strpos($recherche_privee, "autoriser('voir', 'inscription3adherents')") === false
+	|| strpos($recherche_privee, "sql_updateq('spip_auteurs'") !== false
+) {
+	$erreurs[] = 'Le tableau adhérents doit contrôler son autorisation et utiliser l’API auteurs.';
+}
+$contenu_adherents = file_get_contents($racine . '/prive/squelettes/contenu/inscription3_adherents.html');
+if (strpos($contenu_adherents, '#AUTORISER{voir,inscription3adherents}') === false) {
+	$erreurs[] = 'La page privée des adhérents doit être protégée dans son squelette.';
 }
 
 foreach (array(
@@ -260,6 +284,13 @@ if (
 ) {
 	$erreurs[] = 'Les messages d’attente doivent être propres à Inscription 4 et ne contenir aucun secret ni lien utilisable.';
 }
+if (
+	strpos($notification_securisee, "statut_nouveau === '5poubelle'") === false
+	|| strpos($notification_securisee, 'notifications/auteur_invalide') === false
+	|| strpos($notification_securisee, 'notifications/auteur_invalide_admin') === false
+) {
+	$erreurs[] = 'Le refus administratif doit notifier explicitement l’utilisateur et les administrateurs.';
+}
 $cles_notifications = array(
 	'message_auteur_inscription_attente_contenu_admin',
 	'message_auteur_inscription_attente_contenu_user',
@@ -275,6 +306,16 @@ foreach (array('fr', 'en', 'es', 'de', 'nl', 'cs') as $langue_notification) {
 		if (strpos($contenu_langue, "'$cle_notification'") === false) {
 			$erreurs[] = "La notification $cle_notification manque en langue $langue_notification.";
 		}
+	}
+}
+foreach (array(
+	'message_auteur_invalide_contenu_admin',
+	'message_auteur_invalide_contenu_user',
+	'message_auteur_invalide_titre_admin',
+	'message_auteur_invalide_titre_user',
+) as $cle_refus_tcheque) {
+	if (strpos(file_get_contents($racine . '/lang/inscription3_cs.php'), "'$cle_refus_tcheque'") === false) {
+		$erreurs[] = "La notification de refus $cle_refus_tcheque manque en tchèque.";
 	}
 }
 $administration = file_get_contents($racine . '/inscription3_administrations.php');
@@ -312,6 +353,12 @@ if (
 	|| strpos(file_get_contents($racine . '/prive/table_adherent_auteur_recherche.html'), 'onclick=') !== false
 ) {
 	$erreurs[] = 'Les liens de tri ne doivent pas contenir de JavaScript inline échappé par SPIP 4.';
+}
+if (
+	strpos(file_get_contents($racine . '/prive/table_adherent_auteur.html'), '|=={aconfirmer}') !== false
+	|| strpos(file_get_contents($racine . '/prive/table_adherent_auteur_recherche.html'), '|=={aconfirmer}') !== false
+) {
+	$erreurs[] = 'Le tableau doit reconnaître le statut réel 8aconfirmer.';
 }
 
 if (!defined('_ECRIRE_INC_VERSION')) {

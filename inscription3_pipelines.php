@@ -14,6 +14,24 @@ if (!defined('_ECRIRE_INC_VERSION')) {
 }
 
 /**
+ * Modifie un auteur depuis un traitement interne du plugin en passant par
+ * l'API d'édition de SPIP et avec une exception d'autorisation strictement
+ * limitée à cet appel.
+ */
+function inscription4_auteur_modifier_interne($id_auteur, array $set) {
+	include_spip('inc/autoriser');
+	include_spip('action/editer_auteur');
+	autoriser_exception('modifier', 'auteur', (int) $id_auteur);
+	autoriser_exception('instituer', 'auteur', (int) $id_auteur);
+	try {
+		return auteur_modifier((int) $id_auteur, $set);
+	} finally {
+		autoriser_exception('modifier', 'auteur', (int) $id_auteur, false);
+		autoriser_exception('instituer', 'auteur', (int) $id_auteur, false);
+	}
+}
+
+/**
  *
  * Insertion dans le pipeline i3_exceptions_chargement_champs_auteurs_elargis (Inscription3)
  * qui empêche le chargement et la recherche de champs lors de l'affichage de formulaires (editer_auteur / inscription)
@@ -358,6 +376,21 @@ function inscription3_formulaire_charger($flux) {
  */
 function inscription3_formulaire_verifier($flux) {
 	include_spip('inc/config');
+	if ($flux['args']['form'] === 'inscription') {
+		$email = _request('mail_inscription');
+		$email = is_scalar($email) ? trim((string) $email) : '';
+		if ($email !== '') {
+			$auteur_existant = sql_fetsel(
+				'id_auteur, statut',
+				'spip_auteurs',
+				'email='.sql_quote($email)
+			);
+			if ($auteur_existant) {
+				set_request('_inscription4_id_auteur_existant', (int) $auteur_existant['id_auteur']);
+				set_request('_inscription4_statut_existant', $auteur_existant['statut']);
+			}
+		}
+	}
 	if ($flux['args']['form'] == 'configurer_inscription3') {
 		$configuration_cextras = _request('cextras_inscription');
 		if (is_array($configuration_cextras)) {
@@ -408,6 +441,8 @@ function inscription3_formulaire_verifier($flux) {
 		 * Vérifier le logo
 		 */
 		if (isset($_FILES['logo']) and ($_FILES['logo']['error'] == 0)) {
+			$source = false;
+			$erreur = '';
 			$f =_DIR_LOGOS . rand() . '.tmp';
 			include_spip('inc/documents');
 			if ($erreur = check_upload_error($_FILES['logo']['error'], '', $f)) {
@@ -478,8 +513,7 @@ function inscription3_formulaire_verifier($flux) {
 		 */
 		$champs_obligatoires = charger_fonction('inscription3_champs_obligatoires', 'inc');
 		$obligatoires = $champs_obligatoires(null, $flux['args']['form']);
-		unset($obligatoires['email']);
-		unset($obligatoires['nom']);
+		$obligatoires = array_values(array_diff($obligatoires, array('email', 'nom')));
 		$erreurs = array_merge($erreurs, formulaires_editer_objet_verifier('auteur', null, $obligatoires));
 
 		if ($flux['args']['form'] == 'inscription') {
@@ -518,6 +552,11 @@ function inscription3_formulaire_verifier($flux) {
 			$champs_a_verifier = pipeline('i3_verifications_specifiques', array());
 			//gere la correspondance champs -> _request(champs)
 			foreach ($champs_a_verifier as $clef => $type) {
+				// Le formulaire natif gère lui-même la réinscription et le lien
+				// de réinitialisation d'un compte déjà connu.
+				if ($flux['args']['form'] === 'inscription' && $clef === 'mail_inscription') {
+					continue;
+				}
 				/*
 				 * Si le champs n'est pas déjà en erreur suite aux champs obligatoires
 				 * On s'assure qu'il est bien présent dans le formulaire également
@@ -536,8 +575,10 @@ function inscription3_formulaire_verifier($flux) {
 				if (!isset($erreurs[$clef]) and _request($clef)) {
 					$valeur_clef = _request($clef);
 					$valeurs[$clef] = is_scalar($valeur_clef) ? trim((string)$valeur_clef) : '';
-					$type['options'] = array_merge(array_merge((isset($type['options']) && is_array($type['options'])) ?
-						$type['options'] : array(), $_GET), $options);
+					$type['options'] = array_merge(
+						(isset($type['options']) && is_array($type['options'])) ? $type['options'] : array(),
+						$options
+					);
 					$erreurs[$clef] = $verifier($valeurs[$clef], $type['type'], $type['options']);
 					if ($erreurs[$clef] == null) {
 						unset($erreurs[$clef]);
@@ -674,17 +715,29 @@ function inscription3_formulaire_traiter($flux) {
 		include_spip('inscription3_fonctions');
 
 		$valeurs = array();
-		/**
-		 * Les valeurs "normales" du formulaire d'inscription
-		 * qui nous permettront de retrouver l'id_auteur
-		 */
+		$id_auteur = (int) ($flux['data']['id_auteur'] ?? 0);
+		$id_auteur_existant = (int) _request('_inscription4_id_auteur_existant');
+		$statut_existant = (string) _request('_inscription4_statut_existant');
+
+		if (!$id_auteur) {
+			return $flux;
+		}
+
+		// Une réinscription appartient entièrement au noyau SPIP. Inscription 4
+		// ne doit jamais remplacer le profil d'un compte existant avec les
+		// données publiques postées. SPIP peut avoir temporairement promu un
+		// compte 8aconfirmer : on restaure alors son attente administrative.
+		if ($id_auteur_existant === $id_auteur) {
+			if ($statut_existant === '8aconfirmer') {
+				inscription4_auteur_modifier_interne($id_auteur, array('statut' => '8aconfirmer'));
+			}
+			return $flux;
+		}
+
 		$nom = _request('nom_inscription');
 		$mail = _request('mail_inscription');
 
-		/**
-		 * A ce moment là SPIP a déjà créé l'auteur et lui a déjà donné un login et pass
-		 */
-		$user = sql_fetsel('*', 'spip_auteurs', 'email='.sql_quote($mail));
+		$user = sql_fetsel('*', 'spip_auteurs', 'id_auteur='.$id_auteur);
 
 		// SPIP 4 envoie un lien signé : aucun mot de passe n'est saisi ici.
 		$mode = 'inscription';
@@ -780,16 +833,17 @@ function inscription3_formulaire_traiter($flux) {
 			/**
 			 * Mise à jour des infos
 			 */
-			sql_updateq(
-				'spip_auteurs',
-				$val,
-				'id_auteur = '.$user['id_auteur']
-			);
+			$erreur_modification = inscription4_auteur_modifier_interne($id_auteur, $val);
+			if ($erreur_modification) {
+				$flux['data']['message_erreur'] = $erreur_modification;
+				unset($flux['data']['message_ok']);
+				return $flux;
+			}
 
 			$args = array_merge(
 				$flux['args'],
 				array(
-					'id_auteur' => $user['id_auteur'],
+					'id_auteur' => $id_auteur,
 					'champs' => $valeurs
 				)
 			);
@@ -810,7 +864,7 @@ function inscription3_formulaire_traiter($flux) {
 				$sources = formulaire_editer_logo_get_sources();
 				foreach ($sources as $etat => $file) {
 					if ($file and $file['error'] == 0) {
-						logo_modifier('auteur', $user['id_auteur'], $etat, $file);
+						logo_modifier('auteur', $id_auteur, $etat, $file);
 						set_request('logo_up', ' ');
 					}
 				}
@@ -833,11 +887,11 @@ function inscription3_formulaire_traiter($flux) {
 				)
 			);
 			// Confirmer par mail SAUF si un plugin a explicitement mis ne_pas_confirmer_par_mail à true
-		if (!isset($traiter_plugin['ne_pas_confirmer_par_mail']) || !$traiter_plugin['ne_pas_confirmer_par_mail']) {
+			if (!isset($traiter_plugin['ne_pas_confirmer_par_mail']) || !$traiter_plugin['ne_pas_confirmer_par_mail']) {
 				if ($mode == 'aconfirmer') {
 					$traiter_plugin['message_ok'] = _T('inscription3:form_retour_aconfirmer');
 					if ($notifications = charger_fonction('notifications', 'inc')) {
-						$notifications('inscription4_auteur', $user['id_auteur'],
+						$notifications('inscription4_auteur', $id_auteur,
 							array(
 								'statut' => '8aconfirmer',
 								'notifier_utilisateur' => !_request('_inscription4_mail_attente_natif'),
@@ -921,8 +975,8 @@ function inscription3_recuperer_fond($flux) {
 						$label = _T('inscription3:votre_login_mail');
 						break;
 					case 'libre':
-						$label = $config['inscription3/affordance_form_libre'] ?
-							$config['inscription3/affordance_form_libre'] : _T('login_login2');
+						$label = ($config['affordance_form_libre'] ?? '') ?
+							$config['affordance_form_libre'] : _T('login_login2');
 						break;
 				}
 				if ($label) {

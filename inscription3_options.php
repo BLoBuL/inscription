@@ -35,7 +35,13 @@ $GLOBALS['liste_des_statuts']['inscription3:info_aconfirmer'] = '8aconfirmer';
 function envoyer_inscription($desc, $nom, $mode, $options = array()) {
 	include_spip('inc/config');
 
-	if (lire_config('inscription3/valider_comptes') === 'on') {
+	if (
+		lire_config('inscription3/valider_comptes') === 'on'
+		&& (
+			!_request('_inscription4_id_auteur_existant')
+			|| _request('_inscription4_statut_existant') === '8aconfirmer'
+		)
+	) {
 		$options['modele_mail'] = 'notifications/inscription4_auteur_attente';
 		set_request('_inscription4_mail_attente_natif', 1);
 	}

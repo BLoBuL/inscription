@@ -36,6 +36,14 @@ function notifications_inscription4_auteur($quoi, $id_auteur, $options) {
 		$modele_admin = 'notifications/auteur_valide_admin';
 	}
 
+	if (
+		($options['statut_ancien'] ?? '') === '8aconfirmer'
+		&& $statut_nouveau === '5poubelle'
+	) {
+		$modele = 'notifications/auteur_invalide';
+		$modele_admin = 'notifications/auteur_invalide_admin';
+	}
+
 	if (($options['verifier_confirmer'] ?? '') === 'oui') {
 		$modele_admin = 'notifications/auteur_inscription_verifier_admin';
 	}

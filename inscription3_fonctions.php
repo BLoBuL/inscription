@@ -50,8 +50,9 @@ if (!function_exists('lcfirst')) {
  * @param object $table[optional]
  */
 function i3_recherche($quoi = null, $ou = null, $table = null) {
+	$auteurs = sql_get_select('id_auteur', 'spip_auteurs', '0=1');
     if (isset($quoi) and isset($ou)) {
-        $quoi = texte_script(trim($quoi));
+        $quoi = trim((string) $quoi);
         include_spip('base/objets');
         lister_tables_objets_sql(); // aucazou !
         global $tables_principales;
@@ -60,7 +61,7 @@ function i3_recherche($quoi = null, $ou = null, $table = null) {
         $ou = (string) $ou;
 
         if (isset($tables_principales[table_objet_sql($table)]['field'][$ou])) {
-            $auteurs = sql_get_select('id_auteur', table_objet_sql($table), "$ou LIKE '%$quoi%'");
+            $auteurs = sql_get_select('id_auteur', table_objet_sql($table), $ou.' LIKE '.sql_quote('%'.$quoi.'%'));
         } else {
             global $tables_jointures;
             if (isset($tables_jointures[table_objet_sql($table)])
@@ -70,7 +71,7 @@ function i3_recherche($quoi = null, $ou = null, $table = null) {
                         $auteurs = sql_get_select(
                             'id_auteur',
                             table_objet_sql($table) . " AS $table LEFT JOIN " . table_objet_sql($val) . " AS $val USING(id_auteur)",
-                            "$val.$ou LIKE '%$quoi%'"
+                            "$val.$ou LIKE ".sql_quote('%'.$quoi.'%')
                         );
                     }
                 }
@@ -78,6 +79,7 @@ function i3_recherche($quoi = null, $ou = null, $table = null) {
         }
         return "($auteurs)";
     }
+	return "($auteurs)";
 }
 
 /**
