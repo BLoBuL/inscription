@@ -261,7 +261,7 @@ $cles_notifications = array(
 	'message_auteur_inscription4_valider_titre_user',
 	'message_auteur_inscription4_validation_lien',
 );
-foreach (array('fr', 'en', 'es', 'de', 'nl') as $langue_notification) {
+foreach (array('fr', 'en', 'es', 'de', 'nl', 'cs') as $langue_notification) {
 	$contenu_langue = file_get_contents($racine . '/lang/inscription3_' . $langue_notification . '.php');
 	foreach ($cles_notifications as $cle_notification) {
 		if (strpos($contenu_langue, "'$cle_notification'") === false) {
