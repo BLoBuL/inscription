@@ -12,6 +12,8 @@
 	<script type="text/javascript" src="#CHEMIN{lib/jquery-validation-1.9.0/localization/messages_#LANG.js}"></script>
 ]
 <script type="text/javascript"><!--
+	var i3ValidationNumeroInternational = "[(#GET{validation_numero_international})]" === "on";
+
 	jQuery.validator.addMethod("chainenombre", function(value, element) {
 		return this.optional(element) || /^[A-Za-z0-9\-\'\.ßÂâÄäÁÀàËëÈèÊêÉéÏïÎîÌìÍÒòÓÔôÖöÙùÜüÛû‡,˚ ]+$/.test(value);
 	}, "<:inscription3:erreur_champ_obligatoire:>, <:inscription3:erreur_chaine_valide:> <:inscription3:chainenombre:>");
@@ -25,14 +27,14 @@
 	}, "<:inscription3:erreur_champ_obligatoire:>, <:inscription3:erreur_cp_valide:>");
 
 	jQuery.validator.addMethod("numero", function(value, element) {
-		[(#GET{validation_numero_international}|=={on}|oui)
+		if (i3ValidationNumeroInternational) {
 			var numero = value.replace(/[\s.\-()]/g, "");
 			return this.optional(element) || /^\+[1-9][0-9]{6,14}$/.test(numero);
-		]
-		[(#GET{validation_numero_international}|=={on}|non)
-			return this.optional(element) || /^[0-9\+\. \-]+$/.test(value);
-		]
-	}, "[(#GET{validation_numero_international}|=={on}|oui)<:inscription3:erreur_numero_valide_international:>][(#GET{validation_numero_international}|=={on}|non)<:inscription3:erreur_numero_valide:>]");
+		}
+		return this.optional(element) || /^[0-9\+\. \-]+$/.test(value);
+	}, i3ValidationNumeroInternational
+		? "<:inscription3:erreur_numero_valide_international:>"
+		: "<:inscription3:erreur_numero_valide:>");
 
 	jQuery(document).ready(function() {
 	// validate signup form on submit

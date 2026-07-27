@@ -196,6 +196,7 @@ foreach (array($validation_js, $validation_crayons_js) as $javascript_telephone)
 	if (
 		strpos($javascript_telephone, '^\\+[1-9][0-9]{6,14}$') === false
 		|| strpos($javascript_telephone, 'validation_numero_international') === false
+		|| strpos($javascript_telephone, 'i3ValidationNumeroInternational') === false
 	) {
 		$erreurs[] = 'La validation JavaScript doit suivre la règle téléphonique internationale du serveur.';
 		break;
