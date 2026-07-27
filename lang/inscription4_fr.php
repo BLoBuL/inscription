@@ -12,6 +12,7 @@ $GLOBALS[$GLOBALS['idx_lang']] = array(
 	'explication_validation_numero_international' => 'Tous les pays sont acceptés. Format international compatible E.164 : + suivi de l’indicatif du pays et du numéro, par exemple +33 6 12 34 56 78 ou +1 (202) 555-0123.',
 	'inscription4_description' => 'Gestion des inscriptions, des profils et de leur validation avec les API natives de SPIP 4.',
 	'inscription4_slogan' => 'Inscriptions et profils natifs pour SPIP 4',
+	'erreur_inscription_session' => 'Vous êtes déjà connecté. La création d’un compte est réservée aux visiteurs non connectés.',
 	'label_cextra_conditionnel' => 'Conditionnel',
 	'label_cextra_formulaire' => 'Afficher dans le formulaire Inscription 4',
 );

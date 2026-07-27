@@ -300,6 +300,13 @@ function inscription3_formulaire_charger($flux) {
 	if (is_array($flux)
 		and isset($flux['args']['form'])
 		and $flux['args']['form'] =='inscription') {
+		// Une création de compte est exclusivement un parcours visiteur.
+		// Le contrôle est répété dans verifier/traiter pour couvrir un POST direct.
+		if (!empty($GLOBALS['visiteur_session']['id_auteur'])) {
+			$flux['data']['editable'] = false;
+			$flux['data']['message_erreur'] = _T('inscription4:erreur_inscription_session');
+			return $flux;
+		}
 		$valeurs = array();
 		$chercher_champs = charger_fonction('inscription3_champs_formulaire', 'inc');
 		$champs = $chercher_champs(null, 'inscription');
@@ -377,6 +384,11 @@ function inscription3_formulaire_charger($flux) {
 function inscription3_formulaire_verifier($flux) {
 	include_spip('inc/config');
 	if ($flux['args']['form'] === 'inscription') {
+		if (!empty($GLOBALS['visiteur_session']['id_auteur'])) {
+			$flux['data']['message_erreur'] = _T('inscription4:erreur_inscription_session');
+			$flux['data']['_inscription4_session_bloquee'] = true;
+			return $flux;
+		}
 		$email = _request('mail_inscription');
 		$email = is_scalar($email) ? trim((string) $email) : '';
 		if ($email !== '') {
@@ -661,6 +673,12 @@ function inscription3_formulaire_verifier($flux) {
  * @return array $flux Le contexte d'environnement modifié
  */
 function inscription3_formulaire_traiter($flux) {
+	if (($flux['args']['form'] ?? '') === 'inscription'
+		and !empty($GLOBALS['visiteur_session']['id_auteur'])) {
+		$flux['data']['message_erreur'] = _T('inscription4:erreur_inscription_session');
+		unset($flux['data']['message_ok']);
+		return $flux;
+	}
 	if ($flux['args']['form']=='configurer_inscription3') {
 		include_spip('formulaires/inscription3_cextras_fonctions');
 		if (!inscription4_cextras_enregistrer_options_natives(_request('cextras_inscription'))) {

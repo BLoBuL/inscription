@@ -232,6 +232,12 @@ foreach (array($validation_js, $validation_crayons_js) as $javascript_telephone)
 }
 
 $pipeline_cextras = file_get_contents($racine . '/inscription3_pipelines.php');
+if (
+	strpos($pipeline_cextras, "\$GLOBALS['visiteur_session']['id_auteur']") === false
+	|| strpos($pipeline_cextras, 'erreur_inscription_session') === false
+) {
+	$erreurs[] = 'La création de compte doit être bloquée pour toute session déjà authentifiée.';
+}
 if (substr_count($pipeline_cextras, 'saisies_verifier($saisies_cextras)') !== 1) {
 	$erreurs[] = 'Les Champs Extras doivent être vérifiés une seule fois par l’API Saisies.';
 }
