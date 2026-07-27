@@ -219,7 +219,7 @@ oder Ihr Konto bei unserer Website löschen möchten, kliken Sie bitte auf den L
 	'message_auteur_validation_lien' => 'Verwenden Sie diesen sicheren Link, um Ihr Passwort festzulegen oder bei Bedarf zu ändern:',
 	'cextra_obligatoire_natif' => 'In der CExtras-Deklaration erforderlich',
 	'info_cextras_aucun' => 'Für Autoren ist kein externes Zusatzfeld deklariert.',
-	'info_cextras_desc' => 'Wählen Sie die CExtras-Felder für Registrierung, Benutzerprofil und Autorentabelle sowie die bei der Registrierung erforderlichen Felder. Die globale Deklaration wird nicht geändert.',
+	'info_cextras_desc' => 'Die Spalten Formular und Pflichtfeld ändern direkt die CExtras-Definition des Feldes. Die Spalten Profil und Tabelle bleiben Anzeigekontexte von Inscription 4.',
 	'thead_champ' => 'Feld',
 	'thead_type' => 'Eingabetyp',
 );
