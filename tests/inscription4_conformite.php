@@ -142,6 +142,9 @@ if (
 	$erreurs[] = 'Le tableau CExtras doit utiliser la configuration structurée Inscription 4.';
 }
 $fonctions_cextras = file_get_contents($racine . '/formulaires/inscription3_cextras_fonctions.php');
+if (strpos($fonctions_cextras, "\$saisies === null || \$saisies === ''") === false) {
+	$erreurs[] = 'Le filtre SPIP doit pouvoir appeler la détection des conditions sans argument explicite.';
+}
 $configuration_contextuelle_directe = '';
 if (preg_match(
 	'/\\$config_contextuelle\\[\\$nom\\]\\s*=\\s*array\\((.*?)\\);/s',

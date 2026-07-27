@@ -56,7 +56,7 @@ function inscription4_cextras_liste_configurable() {
  * lorsque sa propre option afficher_si est vide.
  */
 function inscription4_cextras_conditions_affichage($saisies = null) {
-	if ($saisies === null) {
+	if ($saisies === null || $saisies === '') {
 		$saisies = inscription4_cextras_saisies_disponibles();
 	}
 
