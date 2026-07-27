@@ -537,7 +537,15 @@ function inscription3_formulaire_verifier($flux) {
 
 		$verifier = charger_fonction('verifier', 'inc', true);
 
-		if ($verifier) {
+		/*
+		 * Depuis Inscription 4, le formulaire d'inscription est entièrement
+		 * décrit par les Saisies CExtras et vérifié par saisies_verifier().
+		 * Ne pas reparcourir ici i3_verifications_specifiques : cela doublonne
+		 * les contrôles (et peut produire deux erreurs pour un même champ).
+		 * L'ancienne boucle reste nécessaire pour editer_auteur, qui n'est pas
+		 * un formulaire Saisies CExtras.
+		 */
+		if ($verifier && $flux['args']['form'] !== 'inscription') {
 			/**
 			 * Vérification des champs de champs extras
 			 */

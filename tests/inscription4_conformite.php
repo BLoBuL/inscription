@@ -235,6 +235,9 @@ $pipeline_cextras = file_get_contents($racine . '/inscription3_pipelines.php');
 if (substr_count($pipeline_cextras, 'saisies_verifier($saisies_cextras)') !== 1) {
 	$erreurs[] = 'Les Champs Extras doivent être vérifiés une seule fois par l’API Saisies.';
 }
+if (strpos($pipeline_cextras, "\$flux['args']['form'] !== 'inscription'") === false) {
+	$erreurs[] = 'Le formulaire Inscription 4 ne doit pas repasser par les contrôleurs i3 spécifiques après saisies_verifier().';
+}
 if (substr_count($pipeline_cextras, "champs_extras_objet('spip_auteurs')") !== 1) {
 	$erreurs[] = 'Le pipeline de vérification ne doit plus reparcourir tous les Champs Extras auteurs.';
 }

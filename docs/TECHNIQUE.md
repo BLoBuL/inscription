@@ -170,6 +170,13 @@ configuration.
   `afficher_si` directes et héritées des groupes.
 - `saisies_verifier()` effectue la validation du jeu filtré une seule fois.
 
+Le formulaire d’inscription ne repasse pas par `i3_verifications_specifiques` :
+les anciens contrôleurs (téléphone, code postal, signature, etc.) sont réservés
+au formulaire historique `editer_auteur`. Les Champs Extras d’Inscription 4
+déclarent directement leur `verifier` dans la saisie et sont contrôlés une seule
+fois par `saisies_verifier()`. Le pipeline public `i3_verifications_specifiques`
+reste disponible pour les extensions et pour la compatibilité Inscription 3.
+
 Une surcharge FO doit consommer ces helpers. Elle ne doit plus tester
 `*_nocreation` comme source active de configuration.
 
