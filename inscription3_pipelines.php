@@ -535,51 +535,6 @@ function inscription3_formulaire_verifier($flux) {
 					}
 				}
 			}
-			/**
-			 * Vérification des champs de cextras
-			 * Uniquement sur le formulaire d'inscription
-			 *
-			 * On ne vérifie pas les obligatoires qui doivent être faits plus haut
-			 */
-			if (($flux['args']['form'] == 'inscription')
-				and $saisies = champs_extras_objet('spip_auteurs')) {
-				include_spip('inc/autoriser');
-				include_spip('inc/saisies');
-
-				$saisies = saisies_lister_avec_sql($saisies);
-
-				// restreindre la vue selon les autorisations
-				$id_objet = $flux['args']['args'][0]; // ? vraiment toujours ?
-				$saisies = champs_extras_autorisation(
-					'modifier',
-					'auteur',
-					$saisies,
-					array_merge(
-						$flux['args'],
-						array(
-							'id' => $id_objet,
-							'contexte' => array()
-						)
-					)
-				); // nous ne connaissons pas le contexte dans ce pipeline
-
-				foreach ($saisies as $saisie) {
-					$nom = $saisie['options']['nom'];
-					// verifier (api) + normalisation
-					if ($verifier
-						and isset($saisie['verifier']['type'])
-						and $verif = $saisie['verifier']['type']) {
-						$options = isset($saisie['verifier']['options']) ? $saisie['verifier']['options'] : array();
-						$normaliser = null;
-						if ($erreur = $verifier(_request($nom), $verif, $options, $normaliser)) {
-							$erreurs[$nom] = $erreur;
-						} elseif (!is_null($normaliser)) {
-							// si une valeur de normalisation a ete transmis, la prendre.
-							set_request($nom, $normaliser);
-						}
-					}
-				}
-			}
 		}
 		/**
 		 * Naisance est un champs spécifique coupé en trois on le vérifie séparément

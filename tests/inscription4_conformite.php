@@ -168,8 +168,11 @@ if (
 }
 
 $pipeline_cextras = file_get_contents($racine . '/inscription3_pipelines.php');
-if (strpos($pipeline_cextras, 'saisies_verifier($saisies_cextras)') === false) {
-	$erreurs[] = 'Les Champs Extras doivent être vérifiés par l’API Saisies.';
+if (substr_count($pipeline_cextras, 'saisies_verifier($saisies_cextras)') !== 1) {
+	$erreurs[] = 'Les Champs Extras doivent être vérifiés une seule fois par l’API Saisies.';
+}
+if (substr_count($pipeline_cextras, "champs_extras_objet('spip_auteurs')") !== 1) {
+	$erreurs[] = 'Le pipeline de vérification ne doit plus reparcourir tous les Champs Extras auteurs.';
 }
 if (
 	strpos($pipeline_cextras, "config['password_reset']") !== false
