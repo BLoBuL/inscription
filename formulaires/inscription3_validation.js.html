@@ -6,6 +6,7 @@
 ]
 
 [(#SET{config_inscription3,#CONFIG{inscription3,#ARRAY}})]
+[(#SET{validation_numero_international,#GET{config_inscription3}|table_valeur{validation_numero_international}})]
 
 [(#LANG|=={en}|non)
 	<script type="text/javascript" src="#CHEMIN{lib/jquery-validation-1.9.0/localization/messages_#LANG.js}"></script>
@@ -24,8 +25,14 @@
 	}, "<:inscription3:erreur_champ_obligatoire:>, <:inscription3:erreur_cp_valide:>");
 
 	jQuery.validator.addMethod("numero", function(value, element) {
-		return this.optional(element) || /^[0-9\+\. \-]+$/.test(value);
-	}, "<:inscription3:erreur_champ_obligatoire:>, <:inscription3:erreur_numero_valide:>");
+		[(#GET{validation_numero_international}|=={on}|oui)
+			var numero = value.replace(/[\s.\-()]/g, "");
+			return this.optional(element) || /^\+[1-9][0-9]{6,14}$/.test(numero);
+		]
+		[(#GET{validation_numero_international}|=={on}|non)
+			return this.optional(element) || /^[0-9\+\. \-]+$/.test(value);
+		]
+	}, "[(#GET{validation_numero_international}|=={on}|oui)<:inscription3:erreur_numero_valide_international:>][(#GET{validation_numero_international}|=={on}|non)<:inscription3:erreur_numero_valide:>]");
 
 	jQuery(document).ready(function() {
 	// validate signup form on submit
@@ -93,16 +100,13 @@
 				email:"<:verifier:erreur_email:>"
 			},
 			telephone: {
-				required:"<:inscription3:erreur_champ_obligatoire:>",
-				numero:"<:inscription3:erreur_numero_valide:>"
+				required:"<:inscription3:erreur_champ_obligatoire:>"
 			},
 			fax: {
-				required:"<:inscription3:erreur_champ_obligatoire:>",
-				numero:"<:inscription3:erreur_numero_valide:>"
+				required:"<:inscription3:erreur_champ_obligatoire:>"
 			},
 			mobile: {
-				required:"<:inscription3:erreur_champ_obligatoire:>",
-				numero:"<:inscription3:erreur_numero_valide:>"
+				required:"<:inscription3:erreur_champ_obligatoire:>"
 			},
 			profession: {
 				required:"<:inscription3:erreur_champ_obligatoire:>",

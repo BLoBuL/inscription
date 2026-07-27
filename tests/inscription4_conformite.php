@@ -102,6 +102,19 @@ foreach (array('_nano_sha256', 'generer_htpass') as $motif) {
 if (preg_match('/\\$val\\[(?:[\'"])(?:pass|htpass|alea_actuel|alea_futur)(?:[\'"])\\]\\s*=/', $pipeline)) {
 	$erreurs[] = 'Écriture directe d’un champ d’authentification détectée.';
 }
+if (
+	!preg_match(
+		'/\\$flux\\[\'creation\'\\]\\s*=\\s*array\\((.*?)\\n\\t\\);\\n\\t\\$flux\\[\'naissance\'\\]/s',
+		$pipeline,
+		$definition_creation
+	)
+	|| strpos($definition_creation[1] ?? '', "'saisie' => 'date'") === false
+	|| strpos($definition_creation[1] ?? '', "'horaire' => 'oui'") === false
+	|| strpos($definition_creation[1] ?? '', "'normaliser' => 'date_ou_datetime'") === false
+	|| strpos($definition_creation[1] ?? '', "'saisie' => 'date_jour_mois_annee'") !== false
+) {
+	$erreurs[] = 'Le champ creation doit utiliser la saisie date native avec son horaire.';
+}
 
 $options = file_get_contents($racine . '/inscription3_options.php');
 if (preg_match('/function\s+envoyer_inscription\s*\(/', $options)) {
@@ -172,6 +185,21 @@ if (
 	|| strpos($configuration, 'password_reset') !== false
 ) {
 	$erreurs[] = 'La configuration ne doit plus proposer de contrôles de mot de passe obsolètes.';
+}
+if (strpos($configuration, 'inscription4:explication_validation_numero_international') === false) {
+	$erreurs[] = 'La configuration doit préciser que la validation téléphonique accepte tous les pays.';
+}
+
+$validation_js = file_get_contents($racine . '/formulaires/inscription3_validation.js.html');
+$validation_crayons_js = file_get_contents($racine . '/i3_validation_methods.js.html');
+foreach (array($validation_js, $validation_crayons_js) as $javascript_telephone) {
+	if (
+		strpos($javascript_telephone, '^\\+[1-9][0-9]{6,14}$') === false
+		|| strpos($javascript_telephone, 'validation_numero_international') === false
+	) {
+		$erreurs[] = 'La validation JavaScript doit suivre la règle téléphonique internationale du serveur.';
+		break;
+	}
 }
 
 $pipeline_cextras = file_get_contents($racine . '/inscription3_pipelines.php');
@@ -245,6 +273,28 @@ if (!defined('_ECRIRE_INC_VERSION')) {
 	define('_ECRIRE_INC_VERSION', 1);
 }
 require_once $racine . '/formulaires/inscription3_cextras_fonctions.php';
+require_once $racine . '/verifier/telephone.php';
+$telephones_internationaux_valides = array(
+	'+33 6 12 34 56 78',
+	'+1 (202) 555-0123',
+	'+420 777 123 456',
+);
+$telephones_internationaux_invalides = array(
+	'06 12 34 56 78',
+	'+0123456789',
+	'+33 téléphone',
+	'+1234567890123456',
+);
+foreach ($telephones_internationaux_valides as $telephone) {
+	if (!inscription4_telephone_international_valide($telephone)) {
+		$erreurs[] = "Numéro international valide refusé : $telephone.";
+	}
+}
+foreach ($telephones_internationaux_invalides as $telephone) {
+	if (inscription4_telephone_international_valide($telephone)) {
+		$erreurs[] = "Numéro international invalide accepté : $telephone.";
+	}
+}
 $jeu = array(
 	array(
 		'saisie' => 'fieldset',

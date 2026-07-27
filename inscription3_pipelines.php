@@ -194,10 +194,19 @@ function inscription3_i3_definition_champs($flux) {
 		)
 	);
 	$flux['creation'] = array(
-		'saisie' => 'date_jour_mois_annee', // type de saisie
+		'saisie' => 'date',
 		'options' => array(
-			'sql' => "datetime DEFAULT '0000-00-00 00:00:00' NOT NULL", // declaration sql
+			'label' => _T('inscription3:label_creation'),
+			'sql' => "datetime DEFAULT '0000-00-00 00:00:00' NOT NULL",
+			'horaire' => 'oui',
 			'rechercher' => false
+		),
+		'verifier' => array(
+			'type' => 'date',
+			'options' => array(
+				'format' => 'amj',
+				'normaliser' => 'date_ou_datetime'
+			)
 		),
 		'restrictions' => array(
 			'voir' => array('auteur' => ''),
