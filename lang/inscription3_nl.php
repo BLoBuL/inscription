@@ -91,15 +91,15 @@ $GLOBALS[$GLOBALS['idx_lang']] = array(
 	'form_retour_inscription_pass' => 'Uw account is succesvol aangemaakt. U kunt het onmiddellijk gebruiken om u aan te melden bij de site met uw registratie-e-mailadres als login.',
 	'form_retour_inscription_pass_logue' => 'Uw account is succesvol aangemaakt. U bent momenteel correct geïdentificeerd.',
 	'formulaire_inscription' => 'Registratieformulier',
-	'formulaire_inscription_ok' => 'Er is rekening gehouden met uw registratie. U ontvangt per e-mail uw inloggegevens.',
+	'formulaire_inscription_ok' => 'Uw registratie is opgeslagen. U ontvangt per e-mail een beveiligde link om uw account te bevestigen en uw wachtwoord te kiezen.',
 	'formulaire_remplir_obligatoires' => 'Vul alstublieft de verplichte velden in',
 	'formulaire_remplir_validation' => 'Controleer de velden die niet gevalideerd zijn. ',
 
 	// I
 	'icone_afficher_utilisateurs' => 'Toon gebruikers',
-	'icone_configurer_inscription3' => 'Registratie instellen3',
+	'icone_configurer_inscription3' => 'Inscription 4 instellen',
 	'info_aconfirmer' => 'bevestigen',
-	'info_cextras_desc' => 'Extra velden al aanwezig in basis.',
+	'info_cextras_desc' => 'Selecteer de CExtras-velden voor registratie, gebruikersprofiel en auteurstabel, en de velden die bij registratie verplicht zijn. Deze instellingen wijzigen de globale declaratie niet.',
 	'info_connection' => 'Verbindingsinformatie',
 	'info_defaut_desc' => 'Instellingsmogelijkheden',
 	'info_pass_faible' => 'laag',
@@ -286,5 +286,10 @@ Als u deze registratie niet hebt aangevraagd of als u niet langer deel wilt uitm
 	'votre_adresse' => 'Uw thuisadres',
 	'votre_login_mail' => 'Uw login of e-mail :',
 	'votre_mail' => 'Uw e-mail :',
-	'votre_nom_complet' => 'Je volledige naam'
+	'votre_nom_complet' => 'Je volledige naam',
+	'message_auteur_validation_lien' => 'Gebruik deze beveiligde link om uw wachtwoord te kiezen of indien nodig te wijzigen:',
+	'cextra_obligatoire_natif' => 'Verplicht in de CExtras-declaratie',
+	'info_cextras_aucun' => 'Er is geen extern extra veld voor auteurs gedeclareerd.',
+	'thead_champ' => 'Veld',
+	'thead_type' => 'Invoertype',
 );

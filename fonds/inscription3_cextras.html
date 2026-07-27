@@ -1,34 +1,73 @@
-#SET{test_objets,false}
-<BOUCLE_test_objets(DATA){si #PLUGIN{cextras}|oui}{source tableau,#VAL{spip_auteurs}|champs_extras_objet}>
-[(#VALEUR{source}|!={inscription3}|oui)
-#SET{test_objets,true}
-]
-</BOUCLE_test_objets>
-<B_objets>
+[(#SET{config,#VAL|inscription4_cextras_configuration})]
+<B_cextras>
 <li class="fieldset" id="cextras">
 	<fieldset>
 		<legend><:inscription3:legende_cextras:></legend>
-		<ul>
-			<li>
-				<p class="explication"><:inscription3:info_cextras_desc:></p>
-			</li>
-			<li class="sans_padding">
-				<table class="inscription3">
-					<thead>
-						<tr>
-							<th class="label">&nbsp;</th>
-							<th><:inscription3:thead_form:> </th>
-							<th> <:inscription3:thead_fiche:> </th>
-							<th class="i3_table"> <:inscription3:thead_table:> </th>
-							<th> <:inscription3:thead_obligatoire:></th>
-						</tr>
-					</thead>
-					<BOUCLE_objets(DATA){si #GET{test_objets}|=={true}|oui}{source tableau,#VAL{spip_auteurs}|champs_extras_objet}>
-                        <INCLURE{fond=fonds/inscription3_cextras_valeur,valeur=#VALEUR,env}>
-					</BOUCLE_objets>
-				</table>
-			</li>
-		</ul>
+		<p class="explication"><:inscription3:info_cextras_desc:></p>
+		<input type="hidden" name="cextras_inscription[]" value="" />
+		<div class="table-responsive">
+			<table class="spip liste inscription4-cextras">
+				<thead>
+					<tr>
+						<th><:inscription3:thead_champ:></th>
+						<th><:inscription3:thead_type:></th>
+						<th><:inscription3:thead_form:></th>
+						<th><:inscription3:thead_fiche:></th>
+						<th><:inscription3:thead_table:></th>
+						<th><:inscription3:thead_obligatoire:></th>
+					</tr>
+				</thead>
+				<tbody>
+				<BOUCLE_cextras(DATA){source tableau,#VAL|inscription4_cextras_liste_configurable}>
+					#SET{nom,#VALEUR{options/nom}}
+					#SET{reglage,#GET{config}|table_valeur{#GET{nom}}}
+					#SET{afficher,#GET{reglage}|table_valeur{afficher}}
+					#SET{fiche,#GET{reglage}|table_valeur{fiche}}
+					#SET{tableau,#GET{reglage}|table_valeur{table}}
+					#SET{obligatoire,#GET{reglage}|table_valeur{obligatoire}}
+					<tr>
+						<td>
+							<label for="cextra_#GET{nom}_afficher">
+								<strong>[(#VALEUR{options/label}|sinon{#VALEUR{options/label_case}}|sinon{#GET{nom}}|_T_ou_typo)]</strong>
+								<small><code>#GET{nom}</code></small>
+							</label>
+						</td>
+						<td>#VALEUR{saisie}</td>
+						<td>
+							<input type="hidden" name="cextras_inscription[#GET{nom}][afficher]" value="" />
+							<input type="checkbox" name="cextras_inscription[#GET{nom}][afficher]" value="on"
+								id="cextra_#GET{nom}_afficher"[(#GET{afficher}|=={on}|oui) checked="checked"] />
+						</td>
+						<td>
+							<input type="hidden" name="cextras_inscription[#GET{nom}][fiche]" value="" />
+							<input type="checkbox" name="cextras_inscription[#GET{nom}][fiche]" value="on"
+								id="cextra_#GET{nom}_fiche"[(#GET{fiche}|=={on}|oui) checked="checked"] />
+						</td>
+						<td>
+							<input type="hidden" name="cextras_inscription[#GET{nom}][table]" value="" />
+							<input type="checkbox" name="cextras_inscription[#GET{nom}][table]" value="on"
+								id="cextra_#GET{nom}_table"[(#GET{tableau}|=={on}|oui) checked="checked"] />
+						</td>
+						<td>
+							<input type="hidden" name="cextras_inscription[#GET{nom}][obligatoire]" value="" />
+							<input type="checkbox" name="cextras_inscription[#GET{nom}][obligatoire]" value="on"
+								id="cextra_#GET{nom}_obligatoire"[(#GET{obligatoire}|=={on}|oui) checked="checked"] />
+							[(#VALEUR{options/obligatoire}|inscription4_cextras_est_obligatoire|oui)
+								<small><:inscription3:cextra_obligatoire_natif:></small>
+							]
+						</td>
+					</tr>
+				</BOUCLE_cextras>
+				</tbody>
+			</table>
+		</div>
 	</fieldset>
 </li>
-</B_objets>
+</B_cextras>
+<li class="fieldset" id="cextras">
+	<fieldset>
+		<legend><:inscription3:legende_cextras:></legend>
+		<p class="explication"><:inscription3:info_cextras_aucun:></p>
+	</fieldset>
+</li>
+<//B_cextras>

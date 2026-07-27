@@ -91,15 +91,15 @@ $GLOBALS[$GLOBALS['idx_lang']] = array(
 	'form_retour_inscription_pass' => 'Your account has been created correctly. You can use it immediately to connect to the website.',
 	'form_retour_inscription_pass_logue' => 'Your account has been successfully created. You’re currently correctly identified.',
 	'formulaire_inscription' => 'Registration form',
-	'formulaire_inscription_ok' => 'Your registration has been noted. You will receive your login information by email.',
+	'formulaire_inscription_ok' => 'Your registration has been recorded. You will receive a secure link by email to validate your account and choose your password.',
 	'formulaire_remplir_obligatoires' => 'Please fill in the required fields.',
 	'formulaire_remplir_validation' => 'Please check the fields that are not valid',
 
 	// I
 	'icone_afficher_utilisateurs' => 'The users',
-	'icone_configurer_inscription3' => 'Configure inscription3',
+	'icone_configurer_inscription3' => 'Configure Inscription 4',
 	'info_aconfirmer' => 'to be confirmed',
-	'info_cextras_desc' => 'Extras fields already created in the database.',
+	'info_cextras_desc' => 'Select the CExtras fields displayed during registration, on the user profile or in the authors table, and those required at registration. These settings do not alter their global declaration.',
 	'info_connection' => 'Login information',
 	'info_defaut_desc' => 'Information which is required by default',
 	'info_pass_faible' => 'Weak',
@@ -284,5 +284,10 @@ If you did not ask for this registration or do not want to take part in the site
 	'votre_adresse' => 'Your home address',
 	'votre_login_mail' => 'Your login or email:',
 	'votre_mail' => 'Your email:',
-	'votre_nom_complet' => 'Your full name'
+	'votre_nom_complet' => 'Your full name',
+	'message_auteur_validation_lien' => 'To choose your password, or change it if necessary, use this secure link:',
+	'cextra_obligatoire_natif' => 'Required in the CExtras declaration',
+	'info_cextras_aucun' => 'No external Extra Field is declared for authors.',
+	'thead_champ' => 'Field',
+	'thead_type' => 'Input type',
 );

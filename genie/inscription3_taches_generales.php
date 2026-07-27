@@ -21,7 +21,7 @@ if (!defined('_ECRIRE_INC_VERSION')) {
  */
 function genie_inscription3_taches_generales($time) {
 	if ($notifications = charger_fonction('notifications', 'inc')) {
-		$notifications('i3_inscriptionauteur', 0,
+		$notifications('inscription4_auteur', 0,
 			array('verifier_confirmer'=>'oui')
 		);
 	}

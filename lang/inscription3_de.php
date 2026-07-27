@@ -91,13 +91,13 @@ $GLOBALS[$GLOBALS['idx_lang']] = array(
 	'form_retour_inscription_pass' => 'Ihr Konto wurde eingerichtet. Sie können es sofort verwenden, indem Sie sich mit ihrer Mailadresse anmelden.',
 	'form_retour_inscription_pass_logue' => 'Ihr Konto wurde angelegt. Sie sind zur Zeit mit ihm eingelogt.',
 	'formulaire_inscription' => 'Anmeldeformular',
-	'formulaire_inscription_ok' => 'Ihr Anmeldung wurde gespeichert. Sie erhalten Ihre Zugangsdaten per Email.',
+	'formulaire_inscription_ok' => 'Ihre Anmeldung wurde gespeichert. Sie erhalten per E-Mail einen sicheren Link, um Ihr Konto zu bestätigen und Ihr Passwort festzulegen.',
 	'formulaire_remplir_obligatoires' => 'Bitte füllen Sie die Pflichtfelder aus.',
 	'formulaire_remplir_validation' => 'Bitte überprüfen Sie die ungültigen Felder.',
 
 	// I
 	'icone_afficher_utilisateurs' => 'Benutzer anzeigen',
-	'icone_configurer_inscription3' => 'Anmeldung 3 konfigurieren',
+	'icone_configurer_inscription3' => 'Inscription 4 konfigurieren',
 	'info_aconfirmer' => 'zu bestätigen',
 	'infos_personnelles' => 'Persönliche Informationen',
 
@@ -215,5 +215,11 @@ oder Ihr Konto bei unserer Website löschen möchten, kliken Sie bitte auf den L
 	'votre_adresse' => 'Persönliche Adresse',
 	'votre_login_mail' => 'Login oder Email :',
 	'votre_mail' => 'Email :',
-	'votre_nom_complet' => 'Vollständiger Name'
+	'votre_nom_complet' => 'Vollständiger Name',
+	'message_auteur_validation_lien' => 'Verwenden Sie diesen sicheren Link, um Ihr Passwort festzulegen oder bei Bedarf zu ändern:',
+	'cextra_obligatoire_natif' => 'In der CExtras-Deklaration erforderlich',
+	'info_cextras_aucun' => 'Für Autoren ist kein externes Zusatzfeld deklariert.',
+	'info_cextras_desc' => 'Wählen Sie die CExtras-Felder für Registrierung, Benutzerprofil und Autorentabelle sowie die bei der Registrierung erforderlichen Felder. Die globale Deklaration wird nicht geändert.',
+	'thead_champ' => 'Feld',
+	'thead_type' => 'Eingabetyp',
 );

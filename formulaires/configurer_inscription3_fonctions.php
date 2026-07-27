@@ -10,4 +10,5 @@ if (!defined('_ECRIRE_INC_VERSION')) {
  */
 if (defined('_DIR_PLUGIN_CEXTRAS')) {
 	include_spip('cextras_pipelines');
+	include_spip('formulaires/inscription3_cextras_fonctions');
 }

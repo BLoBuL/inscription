@@ -64,23 +64,19 @@
 	
 		Un truc un peu compliqué pour la gestion des champs extras externes à Inscription3
 		1. On les liste avec une boucle data
-		2. On n'affiche que ceux avec un suffixe _fiche_nocreation
-			- _fiche signifie qu'ils doivent être affiché dans la fiche
-			- _nocreation signifie qu'ils ne sont pas créés par inscription3
+		2. On n'affiche que ceux activés pour la fiche dans Inscription 4
 		3. On teste leur valeur, si == '', on ne les affiche pas, sinon on mets ces valeurs dans un array
 		4. On inclure inclure/voir_saisies avec les valeurs dans l'env
 	
 	]
 	#SET{saisies,#ARRAY}
 	#SET{env,#ARRAY}
-	<BOUCLE_extras(DATA){si #PLUGIN{cextras}|oui}{source tableau,#VAL{spip_auteurs}|champs_extras_objet}{par cle}>
-	[(#GET{conf_i3}|table_valeur{[(#CLE)]_fiche_nocreation}|=={on}|oui)
+	<BOUCLE_extras(DATA){si #PLUGIN{cextras}|oui}{source tableau,#VAL{fiche}|inscription4_cextras_saisies_contexte}{par cle}>
 		#SET{valeur_champ,#ID_AUTEUR|generer_info_entite{auteur,#CLE}}
 		[(#GET{valeur_champ}|=={''}|non)
 			#SET{saisies,#GET{saisies}|array_merge{#ARRAY{#CLE,#VALEUR}}}
 			#SET{env,#GET{env}|array_merge{#ARRAY{#CLE,#GET{valeur_champ}}}}
 		]
-	]
 	</BOUCLE_extras>
 	<INCLURE{fond=inclure/voir_saisies, _env=#GET{env}, saisies=#GET{saisies}}>
 	</B_extras>

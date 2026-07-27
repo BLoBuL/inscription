@@ -52,8 +52,13 @@ function inc_inscription3_champs_obligatoires_dist($id_auteur = null, $form = 'e
 			$valeurs[] = $resultat[1];
 		}
 	}
-	if ($form == 'inscription' and $config_i3['reglement'] == 'on') {
+	if ($form == 'inscription' && ($config_i3['reglement'] ?? '') == 'on') {
 		$valeurs[] = 'reglement';
 	}
-	return $valeurs;
+	if ($form == 'inscription') {
+		include_spip('formulaires/inscription3_cextras_fonctions');
+		$cextras_disponibles = array_keys(inscription4_cextras_liste_configurable());
+		$valeurs = array_values(array_diff($valeurs, $cextras_disponibles));
+	}
+	return array_values(array_unique($valeurs));
 }

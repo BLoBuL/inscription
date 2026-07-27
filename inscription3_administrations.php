@@ -21,16 +21,21 @@ function inscription3_upgrade($nom_meta_base_version, $version_cible) {
 	/**
 	 *  A t on une meta d'installation déjà?
 	 */
-	$inscription3_meta = isset($GLOBALS['meta']['inscription3']) ? $GLOBALS['meta']['inscription3'] : false;
+	$inscription3_meta_brute = $GLOBALS['meta']['inscription3'] ?? false;
 	$inscription2_meta = lire_config('inscription2');
+	$configuration_historique_invalide = (
+		$inscription3_meta_brute
+		&& !is_array(@unserialize($inscription3_meta_brute))
+	);
 
 	/**
 	 * Certaines montées de version ont oublié de corriger la meta de I2
 	 * si ce n'est pas un array alors il faut supprimer la meta pour la réinstaller
 	 */
-	if ($inscription3_meta and !is_array(@unserialize($inscription3_meta))) {
+	if ($configuration_historique_invalide) {
 		effacer_meta('inscription3');
 	}
+	$inscription3_meta = lire_config('inscription3');
 
 	/**
 	 * Inscription2 semble installé, on tranfère sa configuration vers inscription3
@@ -64,9 +69,10 @@ function inscription3_upgrade($nom_meta_base_version, $version_cible) {
 					)));
 	}
 
+	$maj['create'][] = array('i3_migrer_pays');
 	cextras_api_upgrade(inscription3_declarer_champs_extras(), $maj['create']);
-
-	if ($inscription3_meta and !is_array(@unserialize($inscription3_meta))) {
+	$maj['create'][] = array('inscription4_migrer_configuration_cextras');
+	if ($configuration_historique_invalide) {
 		$maj['create'][] = array('inscription3_transfert_infos_auteurs');
 	}
 
@@ -74,9 +80,55 @@ function inscription3_upgrade($nom_meta_base_version, $version_cible) {
 	$maj['3.1.0'] = array(
 		array('i3_migrer_pays'),
 	);
+	$maj['4.0.0'] = array(
+		array('inscription4_migrer_configuration_cextras'),
+	);
 
 	include_spip('base/upgrade');
 	maj_plugin($nom_meta_base_version, $version_cible, $maj);
+}
+
+/**
+ * Convertit les réglages plats historiques des Champs Extras.
+ */
+function inscription4_migrer_configuration_cextras() {
+	include_spip('inc/config');
+	include_spip('formulaires/inscription3_cextras_fonctions');
+	$config = lire_config('inscription3', array());
+	$nouvelle = lire_config('inscription3/cextras_inscription', array());
+	$disponibles = array();
+
+	foreach (inscription4_cextras_liste_configurable() as $cle => $saisie) {
+		$nom = $saisie['options']['nom'] ?? $cle;
+		if ($nom) {
+			$disponibles[$nom] = $saisie;
+		}
+	}
+	$nouvelle = array_intersect_key($nouvelle, $disponibles);
+
+	foreach ($config as $cle => $valeur) {
+		if (
+			preg_match('/^(.+)_nocreation$/', $cle, $match)
+			&& !preg_match('/_(?:fiche|table|obligatoire)_nocreation$/', $cle)
+			&& isset($disponibles[$match[1]])
+		) {
+			$nom = $match[1];
+			if (!isset($nouvelle[$nom])) {
+				$saisie = $disponibles[$nom];
+				$nouvelle[$nom] = array(
+					'afficher' => ($valeur === 'on') ? 'on' : '',
+					'fiche' => (($config[$nom . '_fiche_nocreation'] ?? '') === 'on') ? 'on' : '',
+					'table' => (($config[$nom . '_table_nocreation'] ?? '') === 'on') ? 'on' : '',
+					'obligatoire' => array_key_exists($nom . '_obligatoire_nocreation', $config)
+						? (($config[$nom . '_obligatoire_nocreation'] === 'on') ? 'on' : '')
+						: (inscription4_cextras_est_obligatoire($saisie['options']['obligatoire'] ?? false) ? 'on' : ''),
+				);
+			}
+		}
+	}
+
+	ecrire_config('inscription3/cextras_inscription', $nouvelle);
+	return true;
 }
 
 

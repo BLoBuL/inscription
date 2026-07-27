@@ -12,6 +12,23 @@ if (!defined('_ECRIRE_INC_VERSION')) {
 }
 
 /**
+ * Retrouve un auteur avec l'API de jetons chiffrés de SPIP 4.
+ */
+function formulaires_supprimer_visiteur_auteur_par_jeton($jeton) {
+	if (!is_string($jeton) || !preg_match('/^[0-9a-f.]+$/i', $jeton)) {
+		return false;
+	}
+
+	include_spip('action/inscrire_auteur');
+	$auteur = auteur_verifier_jeton($jeton);
+	if (!$auteur || ($auteur['statut'] ?? '') === '5poubelle') {
+		return false;
+	}
+
+	return $auteur;
+}
+
+/**
  * Chargement des valeurs par défaut du formulaire
  */
 function formulaires_supprimer_visiteur_charger_dist() {
@@ -23,11 +40,7 @@ function formulaires_supprimer_visiteur_charger_dist() {
 	 */
 	if ($p=_request('s')) {
 		$p = preg_replace(',[^0-9a-f.],i', '', $p);
-		if ($p and $row = sql_fetsel(
-			array('id_auteur','nom','email','statut','webmestre'),
-			'spip_auteurs',
-			array('cookie_oubli='.sql_quote($p),"statut<>'5poubelle'")
-		)) {
+		if ($p && $row = formulaires_supprimer_visiteur_auteur_par_jeton($p)) {
 			$valeurs['_hidden'] = '<input type="hidden" name="s" value="'.$p.'" />';
 		}
 	}
@@ -76,11 +89,8 @@ function formulaires_supprimer_visiteur_verifier_dist() {
 	$erreurs = array();
 
 	if ($p=_request('s')) {
-		if (sql_getfetsel(
-			'id_auteur',
-			'spip_auteurs',
-			'cookie_oubli='.sql_quote($p). ' AND '.sql_in('statut', array('0minirezo','1comite'))
-		)) {
+		$auteur = formulaires_supprimer_visiteur_auteur_par_jeton($p);
+		if (!$auteur || in_array($auteur['statut'], array('0minirezo', '1comite'))) {
 			$erreurs['oubli'] =  _T('inscription3:erreur_effacement_auto_impossible');
 		}
 	} else {
@@ -94,11 +104,19 @@ function formulaires_supprimer_visiteur_verifier_dist() {
  * Traitement du formulaire
  */
 function formulaires_supprimer_visiteur_traiter_dist() {
-	$auteur = sql_fetsel(
-		'id_auteur, statut',
-		'spip_auteurs',
-		'cookie_oubli='.sql_quote(_request('s'))." AND statut<>'0minirezo' AND statut<>'1comite'"
-	);
+	$auteur = formulaires_supprimer_visiteur_auteur_par_jeton(_request('s'));
+	$id_session = (int) ($GLOBALS['visiteur_session']['id_auteur'] ?? 0);
+	if (
+		!$auteur
+		|| !$id_session
+		|| in_array($auteur['statut'], array('0minirezo', '1comite'))
+		|| (
+			(int) $auteur['id_auteur'] !== $id_session
+			&& ($GLOBALS['visiteur_session']['statut'] ?? '') !== '0minirezo'
+		)
+	) {
+		return array('message_erreur' => _T('inscription3:erreur_effacement_auto_impossible'));
+	}
 
 	sql_delete('spip_auteurs', 'id_auteur='.intval($auteur['id_auteur']));
 

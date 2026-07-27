@@ -17,7 +17,3 @@ if (!defined('_ECRIRE_INC_VERSION')) {
  * cf : crayons_validation.js.html
  */
 $GLOBALS['liste_des_statuts']['inscription3:info_aconfirmer'] = '8aconfirmer';
-
-function envoyer_inscription($desc, $nom, $mode, $id) {
-	return false;
-}

@@ -11,6 +11,8 @@ if (!defined('_ECRIRE_INC_VERSION')) {
 	return;
 }
 
+include_spip('formulaires/inscription3_cextras_fonctions');
+
 /**
  *
  * Donne le nom d'un pays en fonction de son id
@@ -159,26 +161,9 @@ function critere_reglement_dist($idb, &$boucles, $crit) {
         $boucle->where[] = $where;
     }
 }
-function envoyer_inscription3($desc, $nom, $mode) {
-	$nom_site_spip = nettoyer_titre_email($GLOBALS['meta']['nom_site']);
-	$adresse_site = $GLOBALS['meta']['adresse_site'];
-	if ($mode == '6forum') {
-		$adresse_login = generer_url_public('login');
-		$msg = 'form_forum_voici1';
-	} else {
-		$adresse_login = $adresse_site .'/'. _DIR_RESTREINT_ABS;
-		$msg = 'form_forum_voici2';
-	}
-
-	$msg = _T('form_forum_message_auto')."\n\n"
-		. _T('form_forum_bonjour', array('nom'=>$nom))."\n\n"
-		. _T($msg, array('nom_site_spip' => $nom_site_spip,
-			'adresse_site' => $adresse_site . '/',
-			'adresse_login' => $adresse_login)) . "\n\n- "
-		. _T('form_forum_login').' ' . $desc['login'] . "\n- "
-		. _T('form_forum_pass'). ' ' . $desc['pass'] . "\n\n";
-
-	return array("[$nom_site_spip] "._T('form_forum_identifiants'), $msg);
+function envoyer_inscription3($desc, $nom, $mode, $options = array()) {
+	include_spip('action/inscrire_auteur');
+	return envoyer_inscription_dist($desc, $nom, $mode, $options);
 }
 
 /**
@@ -204,4 +189,41 @@ function inscription3_recuperer_champs($champs, $id_auteur) {
 	}
 	$resultat = sql_getfetsel($champs, 'spip_auteurs', 'id_auteur='.intval($id_auteur));
 	return typo($resultat);
+}
+
+/**
+ * Champs configurés dans le tableau privé des auteurs.
+ *
+ * Fusionne les champs historiques d'Inscription et les Champs Extras gérés
+ * par la configuration structurée d'Inscription 4.
+ */
+function inscription4_champs_tableau_auteurs() {
+	include_spip('inc/config');
+	$config = lire_config('inscription3', array());
+	$champs = array();
+
+	foreach ($config as $cle => $valeur) {
+		if (
+			$valeur === 'on'
+			&& preg_match('/^(.+)_table$/', $cle, $match)
+		) {
+			$nom = $match[1];
+			$champs[$nom] = array(
+				'nom' => $nom,
+				'label' => _T('inscription3:label_' . $nom),
+			);
+		}
+	}
+
+	include_spip('formulaires/inscription3_cextras_fonctions');
+	include_spip('inc/cextras');
+	$extras = champs_extras_saisies_lister_avec_sql(inscription4_cextras_saisies_contexte('table'));
+	foreach ($extras as $nom => $saisie) {
+		$champs[$nom] = array(
+			'nom' => $nom,
+			'label' => _T_ou_typo($saisie['options']['label'] ?? $nom),
+		);
+	}
+
+	return $champs;
 }

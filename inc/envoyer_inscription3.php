@@ -31,7 +31,7 @@ function inc_envoyer_inscription3_dist($id_auteur, $mode) {
 	$nom = (($config_i3['nom_famille'] ?? '') == 'on') ? 'nom_famille,' : '';
 
 	$var_user = sql_fetsel(
-		"nom,$prenom $nom id_auteur, alea_actuel, login, email",
+		"nom,$prenom $nom id_auteur, login, email",
 		'spip_auteurs',
 		'id_auteur = '.intval($id_auteur)
 	);
@@ -44,12 +44,8 @@ function inc_envoyer_inscription3_dist($id_auteur, $mode) {
 		$nom_final = $var_user['email'];
 	}
 
-	// Dans le cas ou on ne demande pas de mot de passe dans le formulaire de création de compte
-	if ($var_user['alea_actuel'] == '') {
-		include_spip('inc/acces'); # pour creer_uniqid
-		$cookie = creer_uniqid();
-		sql_updateq('spip_auteurs', array('cookie_oubli' => $cookie), 'id_auteur=' . $id_auteur);
-	}
+	include_spip('action/inscrire_auteur');
+	$jeton = auteur_lire_jeton((int) $id_auteur, true);
 	// Initialisation pour éviter les undefined variable si $mode est inconnu
 	$sujet = '';
 	$message = '';
@@ -60,8 +56,8 @@ function inc_envoyer_inscription3_dist($id_auteur, $mode) {
 				. _T('inscription3:email_bonjour', array('nom'=> $nom_final))."\n\n"
 				. _T('inscription3:texte_email_inscription', array(
 						'nom_site' => $nom_site_spip, 'url_site' => $adresse_site,
-						'link_activation' => generer_url_public('spip_pass', 'p='.$cookie, true),
-						'link_suppresion' => generer_url_public('spip_pass', 's='.$cookie, true),
+						'link_activation' => generer_url_public('spip_pass', 'p='.$jeton, true),
+						'link_suppresion' => generer_url_public('spip_pass', 's='.$jeton, true),
 					));
 		$sujet = "[$nom_site_spip] "._T('inscription3:activation_compte');
 	} elseif ($mode == 'inscription_pass') {

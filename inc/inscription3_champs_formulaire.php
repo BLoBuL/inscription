@@ -70,9 +70,13 @@ function inc_inscription3_champs_formulaire_dist($id_auteur = null, $type_formul
 		}
 	}
 	if ($type_formulaire == 'inscription') {
+		include_spip('formulaires/inscription3_cextras_fonctions');
+		$cextras_disponibles = array_keys(inscription4_cextras_liste_configurable());
+		$valeurs = array_values(array_diff($valeurs, $cextras_disponibles));
+		$valeurs = array_merge($valeurs, inscription4_cextras_champs_inscription());
 		$valeurs[] = 'mail_inscription';
 		$valeurs[] = 'nom_inscription';
 	}
 
-	return $valeurs;
+	return array_values(array_unique($valeurs));
 }

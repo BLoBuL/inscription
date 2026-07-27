@@ -69,18 +69,6 @@
 									<td>
 									</td>
 								</tr>
-								<tr>
-									<td class="label"><label><:inscription3:label_pass:></label></td>
-									<td>
-										<input type="checkbox" name="pass"[(#ENV{pass}|=={on}|oui) checked="checked"] id="pass" />
-									</td>
-									<td>
-										<input type="checkbox" name="pass_fiche_mod"[ checked="(#ENV{pass_fiche_mod}?{checked})"] id="pass_fiche_mod" />
-									</td>
-									<td class="i3_table"></td>
-									<td></td>
-									<td><input type="checkbox" name="pass_obligatoire"[ checked="(#ENV{pass_obligatoire}?{checked})"] id="pass_obligatoire" /></td>
-								</tr>
 							</table>
 						</li>
 					</ul>
@@ -187,9 +175,6 @@
 				<fieldset>
 					<legend><:inscription3:legende_formulaire_inscription:></legend>
 					<ul>
-						[(#SAISIE{case,auto_login,
-							label=<:inscription3:label_auto_login:>,
-							label_case=<:inscription3:explication_auto_login:>})]
 						[(#SAISIE{radio, inscription_texte,
 							label=<:inscription3:label_inscription_texte:>,
 							explication=<:inscription3:explication_inscription_texte:>,
@@ -202,22 +187,6 @@
 							rows=5,
 							class='multilang texte inserer_barre_edition',
 							label=<:inscription3:label_inscription_texte_libre:>})]
-					</ul>
-				</fieldset>
-			</li>
-			<li class="fieldset">
-				<fieldset>
-					<legend><:inscription3:legende_password:></legend>
-					<ul>
-						[(#SAISIE{case, password_complexite,
-							label=<:inscription3:label_password_complexite:>,
-							label_case=<:inscription3:explication_password_complexite:>})]
-					</ul>
-					<ul>
-						[(#SAISIE{case, password_reset,
-							label=<:inscription3:label_password_reset:>,
-							label_case=<:inscription3:explication_password_reset:>,
-							defaut=on})]
 					</ul>
 				</fieldset>
 			</li>

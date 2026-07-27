@@ -350,11 +350,20 @@ function inscription3_formulaire_charger($flux) {
 function inscription3_formulaire_verifier($flux) {
 	include_spip('inc/config');
 	if ($flux['args']['form'] == 'configurer_inscription3') {
-		/**
-		 * On supprime l'ancienne configuration pour avoir la nouvelle dans l'ordre
-		 */
-		include_spip('inc/meta');
-		effacer_meta('inscription3');
+		$configuration_cextras = _request('cextras_inscription');
+		if (is_array($configuration_cextras)) {
+			$configuration_cextras = array_filter(
+				$configuration_cextras,
+				function ($reglage, $nom) {
+					return is_string($nom) && is_array($reglage);
+				},
+				ARRAY_FILTER_USE_BOTH
+			);
+			set_request('cextras_inscription', $configuration_cextras);
+		}
+		// Le CVT de configuration remplace les valeurs recensées. Ne jamais
+		// effacer toute la méta pendant verifier(), notamment si une erreur
+		// empêche ensuite traiter() d'enregistrer le formulaire.
 	}
 	if ($flux['args']['form']=='oubli') {
 		$erreurs = $flux['args']['erreurs'] ?? [];
@@ -465,19 +474,11 @@ function inscription3_formulaire_verifier($flux) {
 		$erreurs = array_merge($erreurs, formulaires_editer_objet_verifier('auteur', null, $obligatoires));
 
 		if ($flux['args']['form'] == 'inscription') {
-			if (lire_config('inscription3/pass_obligatoire') == 'on'
-				and lire_config('inscription3/pass') == 'on'
-				and (!_request('pass') or !_request('password1'))) {
-				$erreurs['pass'] = _T('info_obligatoire');
-			} elseif (lire_config('inscription3/pass') == 'on') {
-				if (_request('pass') != _request('password1')) {
-					$erreurs['pass'] = _T('info_passes_identiques');
-				} elseif (strlen(_request('pass')) > 0) {
-					$pass_min = !defined('_PASS_MIN') ? 6 : _PASS_MIN;
-					if (strlen(_request('pass')) < $pass_min) {
-						$erreurs['pass'] = _T('info_passe_trop_court');
-					}
-				}
+			include_spip('formulaires/inscription3_cextras_fonctions');
+			include_spip('inc/saisies_verifier');
+			$saisies_cextras = inscription4_cextras_saisies_inscription();
+			if ($saisies_cextras) {
+				$erreurs = array_merge($erreurs, saisies_verifier($saisies_cextras));
 			}
 
 			if (isset($erreurs['reglement'])) {
@@ -655,29 +656,9 @@ function inscription3_formulaire_traiter($flux) {
 		$verifier_tables();
 	}
 	if ($flux['args']['form']=='mot_de_passe') {
-		$row = sql_fetsel(
-			'id_auteur,email,login,source',
-			'spip_auteurs',
-			array("statut<>'5poubelle'","pass<>''"),
-			'',
-			'maj DESC',
-			'1'
-		);
-		$affordance = lire_config('inscription3/affordance_form', 'login');
-		switch ($affordance) {
-			case 'email':
-				$flux['data']['message_ok'] = _T('pass_nouveau_enregistre').
-					'<p>' . _T('inscription3:pass_rappel_email', array('email' => $row['email']));
-				break;
-			case 'login_et_email':
-				$flux['data']['message_ok'] = _T('pass_nouveau_enregistre').
-					'<p>' .
-					_T(
-						'inscription3:pass_rappel_login_email',
-						array('email' => $row['email'],'login'=>$row['login'])
-					);
-				break;
-		}
+		// SPIP connaît l'auteur concerné et fournit déjà un message neutre.
+		// Ne jamais rechercher le dernier compte modifié dans toute la base.
+		$flux['data']['message_ok'] = _T('pass_nouveau_enregistre');
 	}
 	/**
 	 * Prise en charge du logo dans le formulaire d'édition d'auteur
@@ -735,16 +716,8 @@ function inscription3_formulaire_traiter($flux) {
 		 */
 		$user = sql_fetsel('*', 'spip_auteurs', 'email='.sql_quote($mail));
 
-		/**
-		 * Si l'on demande le passe dans le formulaire
-		 * On a un mode avec pass fourni
-		 * Sinon un mode simple
-		 */
-		if (($config_i3['pass'] == 'on') and (strlen((string)(_request('pass') ?? '')))) {
-			$mode = 'inscription_pass';
-		} else {
-			$mode = 'inscription';
-		}
+		// SPIP 4 envoie un lien signé : aucun mot de passe n'est saisi ici.
+		$mode = 'inscription';
 
 		/**
 		 * Generer la liste des champs a traiter
@@ -802,39 +775,13 @@ function inscription3_formulaire_traiter($flux) {
 		$val = array_intersect_key($valeurs, $clefs);
 
 		/**
-		 * Si on demande le pass dans le formulaire
-		 * Le compte est automatiquement activé
-		 */
-		if ($mode == 'inscription_pass') {
-			$new_pass = '';
-			if (strlen((string)(_request('password') ?? '')) !== 0) {
-				$new_pass = (string)_request('password');
-			} elseif ($mode == 'inscription_pass') {
-				$new_pass = (string)(_request('pass') ?? '');
-			}
-
-			if (strlen($new_pass) > 0) {
-				include_spip('inc/acces');
-				include_spip('auth/sha256.inc');
-				$val['htpass'] = generer_htpass($new_pass);
-				$val['alea_actuel']  = creer_uniqid();
-				$val['alea_futur'] = creer_uniqid();
-				$val['pass'] = _nano_sha256($val['alea_actuel'].$new_pass);
-				$val['low_sec'] = '';
-			}
-			$val['statut'] = (strlen((string)($flux['args']['args'][0] ?? '')) > 1) ?
-				$flux['args']['args'][0] : ($config_i3['statut_nouveau'] ?
-					$config_i3['statut_nouveau'] : '6forum');
-		}
-
-		/**
 		 * On met le compte en "à confirmer" si on a configuré les choses comme cela
 		 * Dans ce cas on met la bio à '' si elle n'est pas dans le form afin d'enlever le statut temporaire
 		 * qui y est stocké par SPIP
 		 * Sinon si on a la bio dans le formulaire et qu'on la reçoit, on met directement un statut à
 		 * l'auteur, sinon on laisse l'ancien (nouveau normalement)
 		 */
-		if ($config_i3['valider_comptes'] == 'on') {
+		if (($config_i3['valider_comptes'] ?? '') == 'on') {
 			$mode = 'aconfirmer';
 			if (empty($val['bio'])) {
 				$val['bio'] = '';
@@ -845,28 +792,22 @@ function inscription3_formulaire_traiter($flux) {
 			 * Si on a le champ bio dans le formulaire on force le statut
 			 */
 			$val['statut'] = (strlen((string)($flux['args']['args'][0] ?? '')) > 1) ?
-				$flux['args']['args'][0] : ($config_i3['statut_nouveau'] ?
+				$flux['args']['args'][0] : (($config_i3['statut_nouveau'] ?? '') ?
 					$config_i3['statut_nouveau'] : '6forum');
 		}
 
-		if (empty($val['pass'])) {
-			unset($val['pass']);
-		}
+		// Les secrets et champs internes d'authentification appartiennent
+		// exclusivement au noyau SPIP 4.
+		unset(
+			$val['pass'],
+			$val['htpass'],
+			$val['alea_actuel'],
+			$val['alea_futur'],
+			$val['cookie_oubli'],
+			$val['low_sec']
+		);
 
-		if (function_exists('test_inscription')) {
-			$f = 'test_inscription';
-		} else {
-			$f = 'test_inscription_dist';
-		}
-
-		$desc = $f($user['bio'], $mail, $valeurs['nom'], $user['id_auteur']);
-
-		if (is_array($desc) and $mail = $desc['email']) {
-			/**
-			 * On recrée le pass pour être sûr d'avoir le bon
-			 */
-			$desc['pass'] = creer_pass_pour_auteur($user['id_auteur']);
-			$desc['login'] = $val['login'];
+		if (is_array($user) && !empty($user['id_auteur'])) {
 
 			/**
 			 * Mise à jour des infos
@@ -928,39 +869,14 @@ function inscription3_formulaire_traiter($flux) {
 				if ($mode == 'aconfirmer') {
 					$traiter_plugin['message_ok'] = _T('inscription3:form_retour_aconfirmer');
 					if ($notifications = charger_fonction('notifications', 'inc')) {
-						$notifications('i3_inscriptionauteur', $user['id_auteur'],
+						$notifications('inscription4_auteur', $user['id_auteur'],
 							array('statut' => '8aconfirmer')
 						);
 					}
-				} elseif ($mode == 'inscription_pass') {
-					$traiter_plugin['message_ok'] = _T('inscription3:form_retour_inscription_pass');
-					if ($notifications = charger_fonction('notifications', 'inc')) {
-						$notifications('i3_inscriptionauteur', $user['id_auteur'],
-							array('statut' => $val['statut'],'pass' => 'ok')
-						);
-					}
-					if ($config_i3['auto_login'] == 'on') {
-						$auteur = sql_fetsel('*', 'spip_auteurs', 'id_auteur='.intval($user['id_auteur']));
-						include_spip('inc/auth');
-						auth_loger($auteur);
-						$traiter_plugin['message_ok'] = _T('inscription3:form_retour_inscription_pass_logue');
-					}
 				} else {
-					$envoyer_mail = charger_fonction('envoyer_mail', 'inc');
-					if (function_exists('envoyer_inscription3')) {
-						$mode = $config_i3['statut_nouveau'];
-						$f = 'envoyer_inscription3';
-						list($sujet,$msg,$from,$head) = $f($desc, $nom, $mode);
-					}
-					if ($desc) {
-						if (!$envoyer_mail($mail, $sujet, $msg, $from, $head)) {
-							$flux['data']['message_erreur'] = _T('form_forum_probleme_mail');
-						} else {
-							$traiter_plugin['message_ok'] = _T('form_forum_identifiant_mail');
-						}
-					} else {
-						$traiter_plugin['message_ok'] = _T('form_forum_identifiant_mail');
-					}
+					// Le noyau a déjà envoyé le lien de confirmation et de choix
+					// du mot de passe avec son jeton chiffré.
+					$traiter_plugin['message_ok'] = _T('form_forum_identifiant_mail');
 				}
 			}
 			$flux['data']['editable'] = $traiter_plugin['editable'] ?? '';
@@ -1048,24 +964,6 @@ function inscription3_recuperer_fond($flux) {
 				}
 			}
 		}
-		/**
-		 * On ajoute un vérificateur de complexité de mot de passe
-		 */
-		if (
-			isset($config['inscription3/password_complexite'])
-			and $config['inscription3/password_complexite'] == 'on'
-			and in_array($flux['args']['fond'], array('formulaires/mot_de_passe', 'formulaires/editer_auteur', 'content/spip_pass'))) {
-			// Le nom du champ password diffère selon le formulaire :
-			// - mot_de_passe et spip_pass utilisent 'oubli'
-			// - editer_auteur utilise 'pass' (standard SPIP)
-			$fond_actuel = $flux['args']['fond'];
-			$nom_champ_pass = in_array($fond_actuel, array('formulaires/mot_de_passe', 'content/spip_pass'))
-				? 'oubli'
-				: 'pass';
-			$contexte_js = array_merge((array)($flux['data']['contexte'] ?? array()), array('password' => $nom_champ_pass));
-			$js = recuperer_fond('formulaires/inc-js_pass_verification', $contexte_js);
-			$flux['data']['texte'] = preg_replace('/(<\/form>)(.*)/Uims', "\\1".$js."\\2", $flux['data']['texte'], 1);
-		}
 	}
 	return $flux;
 }
@@ -1124,16 +1022,6 @@ function inscription3_editer_contenu_objet($flux) {
 					$inserer_saisie .= "<input type='hidden' name='$champ' value='".$flux['args']['contexte'][$champ]."' />\n";
 				}
 			}
-		}
-
-		if (isset($config['password_reset'])
-			and $config['password_reset'] !== 'on') {
-				$flux['data'] = preg_replace(
-					"/(<button [^>]*name=[\"']reset_password[\"'].*<\/button>)/Uims",
-					'',
-					$flux['data'],
-					1
-				);
 		}
 
 		/**
@@ -1302,17 +1190,17 @@ function inscription3_notifications_destinataires($flux) {
 	 * Cas également de l'inscription d'un auteur
 	 * Envoi à l'utilisateur ($options['type'] == 'user')
 	 */
-	if (($quoi=='instituerauteur' and $options['statut_ancien'] == '8aconfirmer' and $options['type'] == 'user')
-		or ($quoi=='i3_inscriptionauteur' and $options['type'] == 'user')) {
+	if (($quoi=='instituerauteur' and ($options['statut_ancien'] ?? '') == '8aconfirmer' and ($options['type'] ?? '') == 'user')
+		or (in_array($quoi, array('i3_inscriptionauteur', 'inscription4_auteur'), true) and ($options['type'] ?? '') == 'user')) {
 		$id_auteur = $flux['args']['id'];
 		include_spip('base/abstract_sql');
 		$mail = sql_getfetsel('email', 'spip_auteurs', 'id_auteur='.intval($id_auteur));
 		if ($mail) {
 			$flux['data'][] = $mail;
 		}
-	} elseif (($quoi=='instituerauteur' and $options['statut_ancien'] == '8aconfirmer'
-		and $options['type'] == 'admin')
-		or ($quoi=='i3_inscriptionauteur' and $options['type'] == 'admin')) {
+	} elseif (($quoi=='instituerauteur' and ($options['statut_ancien'] ?? '') == '8aconfirmer'
+		and ($options['type'] ?? '') == 'admin')
+		or (in_array($quoi, array('i3_inscriptionauteur', 'inscription4_auteur'), true) and ($options['type'] ?? '') == 'admin')) {
 			/**
 			 * Cas de la validation ou invalidation d'un compte d'un utilisateur
 			 * Envoi aux administrateurs ($options['type'] == 'admin')
@@ -1372,6 +1260,36 @@ function inscription3_notifications_destinataires($flux) {
 function inscription3_taches_generales_cron($taches_generales) {
 	$taches_generales['inscription3_taches_generales'] = 24*60*60;
 	return $taches_generales;
+}
+
+/**
+ * API historique conservée pour les plugins dépendants.
+ *
+ * Les menus sont désormais déclarés dans paquet.xml.
+ */
+function inscription3_ajouter_menus($menus) {
+	return $menus;
+}
+
+/**
+ * Alias natif Inscription 4 de l'API publique historique.
+ */
+function inscription4_taches_generales_cron($taches_generales) {
+	return inscription3_taches_generales_cron($taches_generales);
+}
+
+/**
+ * Alias natif Inscription 4 de l'API publique historique.
+ */
+function inscription4_ajouter_menus($menus) {
+	return inscription3_ajouter_menus($menus);
+}
+
+/**
+ * Alias natif Inscription 4 de l'API publique historique.
+ */
+function inscription4_formulaire_charger($flux) {
+	return inscription3_formulaire_charger($flux);
 }
 
 /**
@@ -1463,7 +1381,7 @@ function inscription3_post_edition($flux) {
 		and $flux['args']['table'] == 'spip_auteurs'
 		and $flux['args']['statut_ancien'] == '8aconfirmer') {
 		if ($notifications = charger_fonction('notifications', 'inc')) {
-			$notifications('i3_inscriptionauteur', $flux['args']['id_objet'],
+			$notifications('inscription4_auteur', $flux['args']['id_objet'],
 				array('statut_ancien' => '8aconfirmer', 'statut_nouveau' => $flux['data']['statut'])
 			);
 		}

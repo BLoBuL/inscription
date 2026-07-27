@@ -1,0 +1,11 @@
+<?php
+
+if (!defined('_ECRIRE_INC_VERSION')) {
+	return;
+}
+
+$GLOBALS[$GLOBALS['idx_lang']] = array(
+	'icone_configurer' => 'Configure Inscription 4',
+	'inscription4_description' => 'Registration, profile and validation management using the native SPIP 4 APIs.',
+	'inscription4_slogan' => 'Native registrations and profiles for SPIP 4',
+);
