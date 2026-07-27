@@ -141,6 +141,9 @@ if (
 ) {
 	$erreurs[] = 'Le tableau CExtras doit utiliser la configuration structurée Inscription 4.';
 }
+if (strpos($configuration_cextras, 'cextra_obligatoire_natif') !== false) {
+	$erreurs[] = 'Le tableau ne doit pas répéter que l’obligation provient de la déclaration CExtras.';
+}
 $fonctions_cextras = file_get_contents($racine . '/formulaires/inscription3_cextras_fonctions.php');
 if (strpos($fonctions_cextras, "\$saisies === null || \$saisies === ''") === false) {
 	$erreurs[] = 'Le filtre SPIP doit pouvoir appeler la détection des conditions sans argument explicite.';

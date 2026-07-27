@@ -60,9 +60,6 @@
 							<input type="hidden" name="cextras_inscription[#GET{nom}][obligatoire]" value="" />
 							<input type="checkbox" name="cextras_inscription[#GET{nom}][obligatoire]" value="on"
 								id="cextra_#GET{nom}_obligatoire"[(#GET{obligatoire}|=={on}|oui) checked="checked"] />
-							[(#VALEUR{options/obligatoire}|inscription4_cextras_est_obligatoire|oui)
-								<small><:inscription3:cextra_obligatoire_natif:></small>
-							]
 						</td>
 					</tr>
 				</BOUCLE_cextras>

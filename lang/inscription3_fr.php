@@ -195,7 +195,6 @@ $GLOBALS[$GLOBALS['idx_lang']] = array(
 	'message_auteur_inscription_valider_contenu_user' => 'votre compte a été validé par un administrateur du site.',
 	'message_auteur_inscription_valider_titre_user' => '[@nom_site_spip@] Votre compte a été validé',
 	'message_auteur_validation_lien' => 'Pour choisir votre mot de passe, ou le modifier si nécessaire, utilisez ce lien sécurisé :',
-	'cextra_obligatoire_natif' => 'Obligatoire dans la déclaration CExtras',
 	'info_cextras_aucun' => 'Aucun Champ Extra externe n’est déclaré pour les auteurs.',
 	'thead_champ' => 'Champ',
 	'thead_type' => 'Type de saisie',

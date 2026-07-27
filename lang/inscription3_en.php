@@ -286,7 +286,6 @@ If you did not ask for this registration or do not want to take part in the site
 	'votre_mail' => 'Your email:',
 	'votre_nom_complet' => 'Your full name',
 	'message_auteur_validation_lien' => 'To choose your password, or change it if necessary, use this secure link:',
-	'cextra_obligatoire_natif' => 'Required in the CExtras declaration',
 	'info_cextras_aucun' => 'No external Extra Field is declared for authors.',
 	'thead_champ' => 'Field',
 	'thead_type' => 'Input type',

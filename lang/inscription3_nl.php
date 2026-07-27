@@ -288,7 +288,6 @@ Als u deze registratie niet hebt aangevraagd of als u niet langer deel wilt uitm
 	'votre_mail' => 'Uw e-mail :',
 	'votre_nom_complet' => 'Je volledige naam',
 	'message_auteur_validation_lien' => 'Gebruik deze beveiligde link om uw wachtwoord te kiezen of indien nodig te wijzigen:',
-	'cextra_obligatoire_natif' => 'Verplicht in de CExtras-declaratie',
 	'info_cextras_aucun' => 'Er is geen extern extra veld voor auteurs gedeclareerd.',
 	'thead_champ' => 'Veld',
 	'thead_type' => 'Invoertype',
