@@ -649,6 +649,12 @@ function inscription3_formulaire_verifier($flux) {
  */
 function inscription3_formulaire_traiter($flux) {
 	if ($flux['args']['form']=='configurer_inscription3') {
+		include_spip('formulaires/inscription3_cextras_fonctions');
+		if (!inscription4_cextras_enregistrer_options_natives(_request('cextras_inscription'))) {
+			$flux['data']['message_erreur'] = _T('inscription4:erreur_enregistrement_cextras');
+			unset($flux['data']['message_ok']);
+			return $flux;
+		}
 		/**
 		 * Crée les champs dans la table spip_auteurs dès la validation du CFG
 		 */
@@ -1354,6 +1360,33 @@ function inscription4_openid_inscrire_redirect($flux) {
 
 function inscription4_post_edition($flux) {
 	return inscription3_post_edition($flux);
+}
+
+/**
+ * Expose l'option Formulaire d'Inscription 4 dans l'éditeur natif CExtras.
+ */
+function inscription4_saisies_construire_formulaire_config($flux) {
+	if (($flux['args']['identifiant'] ?? '') !== 'constructeur_formulaire_champs_extras_spip_auteurs') {
+		return $flux;
+	}
+
+	$nom = $flux['args']['nom'] ?? '';
+	if (!$nom) {
+		return $flux;
+	}
+
+	$flux['data'][] = array(
+		'saisie' => 'case',
+		'options' => array(
+			'nom' => "saisie_modifiee_{$nom}[options][inscription4_formulaire]",
+			'label_case' => _T('inscription4:label_cextra_formulaire'),
+			'explication' => _T('inscription4:explication_cextra_formulaire'),
+			'valeur_oui' => 'on',
+			'valeur_non' => '',
+		),
+	);
+
+	return $flux;
 }
 
 /**

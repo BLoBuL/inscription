@@ -16,8 +16,8 @@ if ((string) $paquet['prefix'] !== 'inscription4') {
 if ((string) $paquet['compatibilite'] !== '[4.1.0;4.*]') {
 	$erreurs[] = 'La compatibilité doit être limitée à SPIP 4.';
 }
-if ((string) $paquet['schema'] !== '4.0.1') {
-	$erreurs[] = 'Le schéma doit inclure la migration de configuration CExtras.';
+if ((string) $paquet['schema'] !== '4.1.0') {
+	$erreurs[] = 'Le schéma doit inclure la migration vers les options CExtras natives.';
 }
 $procure_inscription3 = false;
 foreach ($paquet->procure as $procure) {
@@ -28,6 +28,16 @@ foreach ($paquet->procure as $procure) {
 }
 if (!$procure_inscription3) {
 	$erreurs[] = 'Inscription 4 doit procurer l’API inscription3 aux plugins dépendants.';
+}
+$necessite_iextras = false;
+foreach ($paquet->necessite as $necessite) {
+	if ((string) $necessite['nom'] === 'iextras') {
+		$necessite_iextras = true;
+		break;
+	}
+}
+if (!$necessite_iextras) {
+	$erreurs[] = 'L’écriture directe des définitions CExtras nécessite le plugin IExtras.';
 }
 if (
 	!is_file($racine . '/lang/inscription4_fr.php')
@@ -70,6 +80,7 @@ foreach (array(
 	'openid_recuperer_identite',
 	'openid_inscrire_redirect',
 	'post_edition',
+	'saisies_construire_formulaire_config',
 ) as $pipeline_inscription4) {
 	if (strpos($code_php, "function inscription4_$pipeline_inscription4(") === false) {
 		$erreurs[] = "Point d’entrée Inscription 4 absent pour le pipeline $pipeline_inscription4.";
@@ -129,6 +140,25 @@ if (
 ) {
 	$erreurs[] = 'Le tableau CExtras doit utiliser la configuration structurée Inscription 4.';
 }
+$fonctions_cextras = file_get_contents($racine . '/formulaires/inscription3_cextras_fonctions.php');
+$configuration_contextuelle_directe = '';
+if (preg_match(
+	'/\\$config_contextuelle\\[\\$nom\\]\\s*=\\s*array\\((.*?)\\);/s',
+	$fonctions_cextras,
+	$match_configuration_contextuelle
+)) {
+	$configuration_contextuelle_directe = $match_configuration_contextuelle[1];
+}
+if (
+	strpos($fonctions_cextras, "['options']['inscription4_formulaire']") === false
+	|| strpos($fonctions_cextras, "['options']['obligatoire']") === false
+	|| strpos($fonctions_cextras, "ecrire_meta('champs_extras_spip_auteurs'") === false
+	|| !$configuration_contextuelle_directe
+	|| strpos($configuration_contextuelle_directe, "'afficher'") !== false
+	|| strpos($configuration_contextuelle_directe, "'obligatoire'") !== false
+) {
+	$erreurs[] = 'Formulaire et Obligatoire doivent être enregistrés dans la définition CExtras native.';
+}
 $configuration = file_get_contents($racine . '/formulaires/configurer_inscription3.html');
 if (
 	strpos($configuration, 'password_complexite') !== false
@@ -183,6 +213,12 @@ if (
 	$erreurs[] = 'La migration CExtras doit filtrer les champs et reprendre leur obligation native.';
 }
 if (
+	strpos($administration, "maj['4.1.0']") === false
+	|| strpos($administration, 'inscription4_migrer_cextras_options_natives') === false
+) {
+	$erreurs[] = 'La migration vers les options CExtras natives doit être versionnée.';
+}
+if (
 	strpos(file_get_contents($racine . '/modeles/fiche_utilisateur.html'), '_fiche_nocreation') !== false
 	|| strpos(file_get_contents($racine . '/prive/table_adherent_auteur.html'), '_table_nocreation') !== false
 ) {
@@ -216,18 +252,35 @@ $jeu = array(
 	),
 );
 $filtre = inscription4_cextras_filtrer_saisies($jeu, array('externe'), array('interne'));
-$configure = inscription4_cextras_appliquer_obligation(
+$modifie = false;
+$configure = inscription4_cextras_mettre_a_jour_options(
 	$filtre,
-	array('externe' => array('obligatoire' => 'on'))
+	array('externe' => array('afficher' => 'on', 'obligatoire' => 'on')),
+	$modifie
 );
 if (
 	count($configure) !== 1
 	|| count($configure[0]['saisies']) !== 1
 	|| ($configure[0]['saisies'][0]['options']['obligatoire'] ?? '') !== 'oui'
+	|| ($configure[0]['saisies'][0]['options']['inscription4_formulaire'] ?? '') !== 'on'
+	|| !$modifie
 	|| inscription4_cextras_est_obligatoire('non')
 	|| !inscription4_cextras_est_obligatoire('oui')
 ) {
 	$erreurs[] = 'Le filtrage hiérarchique ou l’obligation CExtras est incorrect.';
+}
+$modifie = false;
+$configure = inscription4_cextras_mettre_a_jour_options(
+	$configure,
+	array('externe' => array('afficher' => '', 'obligatoire' => '')),
+	$modifie
+);
+if (
+	!$modifie
+	|| ($configure[0]['saisies'][0]['options']['obligatoire'] ?? null) !== ''
+	|| ($configure[0]['saisies'][0]['options']['inscription4_formulaire'] ?? null) !== ''
+) {
+	$erreurs[] = 'La désactivation doit également modifier directement les options CExtras.';
 }
 
 if ($erreurs) {

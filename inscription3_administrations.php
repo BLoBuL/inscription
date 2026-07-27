@@ -86,6 +86,9 @@ function inscription3_upgrade($nom_meta_base_version, $version_cible) {
 	$maj['4.0.1'] = array(
 		array('i3_migrer_pays'),
 	);
+	$maj['4.1.0'] = array(
+		array('inscription4_migrer_cextras_options_natives'),
+	);
 
 	include_spip('base/upgrade');
 	maj_plugin($nom_meta_base_version, $version_cible, $maj);
@@ -130,8 +133,14 @@ function inscription4_migrer_configuration_cextras() {
 		}
 	}
 
-	ecrire_config('inscription3/cextras_inscription', $nouvelle);
-	return true;
+	return inscription4_cextras_enregistrer_options_natives($nouvelle);
+}
+
+/**
+ * Migre la surcouche Formulaire/Obligatoire vers les options CExtras natives.
+ */
+function inscription4_migrer_cextras_options_natives() {
+	return inscription4_migrer_configuration_cextras();
 }
 
 

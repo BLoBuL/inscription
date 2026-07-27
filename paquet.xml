@@ -1,11 +1,11 @@
 <paquet
 	prefix="inscription4"
 	categorie="auteur"
-	version="4.0.2"
+	version="4.1.0"
 	etat="stable"
 	compatibilite="[4.1.0;4.*]"
 	logo="prive/themes/spip/images/inscription3-64.png"
-	schema="4.0.1"
+	schema="4.1.0"
 	documentation="https://www.mediaspip.net/spip.php?rubrique87"
 >
 
@@ -44,13 +44,15 @@
 	<pipeline nom="openid_recuperer_identite" inclure="inscription3_pipelines.php" />
 	<pipeline nom="openid_inscrire_redirect" inclure="inscription3_pipelines.php" />
 	<pipeline nom="post_edition" inclure="inscription3_pipelines.php" />
+	<pipeline nom="saisies_construire_formulaire_config" inclure="inscription3_pipelines.php" />
 
 	<necessite nom="saisies" compatibilite="[4.2.0;]" />
 	<necessite nom="cextras" compatibilite="[4.3.0;4.*]" />
+	<necessite nom="iextras" compatibilite="[4.3.0;4.*]" />
 	<necessite nom="verifier" compatibilite="[1.0.6;]" />
 	<necessite nom="pays" compatibilite="[4.2.1;]" />
 	<necessite nom="notifications" compatibilite="[3.2.0;]" />
-	<procure nom="inscription3" version="4.0.0" />
+	<procure nom="inscription3" version="4.1.0" />
 
 	<lib nom="jquery-validation-1.10.0" lien="https://github.com/downloads/jzaefferer/jquery-validation/jquery-validation-1.10.0.zip" />
 
