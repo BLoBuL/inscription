@@ -1,11 +1,11 @@
 <paquet
 	prefix="inscription4"
 	categorie="auteur"
-	version="4.1.11"
+	version="4.1.12"
 	etat="test"
 	compatibilite="[4.1.0;4.*]"
 	logo="prive/themes/spip/images/inscription3-64.png"
-	schema="4.1.0"
+	schema="4.1.1"
 	documentation="https://www.mediaspip.net/spip.php?rubrique87"
 >
 

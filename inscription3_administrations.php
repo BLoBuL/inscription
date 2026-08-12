@@ -89,6 +89,9 @@ function inscription3_upgrade($nom_meta_base_version, $version_cible) {
 	$maj['4.1.0'] = array(
 		array('inscription4_migrer_cextras_options_natives'),
 	);
+	$maj['4.1.1'] = array(
+		array('i3_migrer_pays'),
+	);
 
 	include_spip('base/upgrade');
 	maj_plugin($nom_meta_base_version, $version_cible, $maj);
@@ -173,7 +176,7 @@ function i3_migrer_pays() {
 	if (empty($table_auteurs['field']['pays'])) {
 		spip_log(
 			'Migration vers le plugin Pays ignorée : la colonne historique spip_auteurs.pays est absente.',
-			'inscription3.' . _LOG_INFO
+			'inscription4.' . _LOG_INFO
 		);
 		return true;
 	}
@@ -214,7 +217,7 @@ function i3_migrer_pays() {
 		spip_log(
 			'Migration vers le plugin Pays interrompue : pays sans code ISO exploitable : '
 				. implode(', ', array_unique($erreurs)),
-			'inscription3.' . _LOG_ERREUR
+			'inscription4.' . _LOG_ERREUR
 		);
 		return false;
 	}
@@ -235,7 +238,7 @@ function i3_migrer_pays() {
 		spip_log(
 			'Migration vers le plugin Pays interrompue : identifiants hérités introuvables : '
 				. implode(', ', $ids_sans_correspondance),
-			'inscription3.' . _LOG_ERREUR
+			'inscription4.' . _LOG_ERREUR
 		);
 		return false;
 	}
@@ -250,7 +253,27 @@ function i3_migrer_pays() {
 		}
 	}
 
-	sql_drop_table('spip_geo_pays');
+	if (!sql_drop_table('spip_geo_pays', true)) {
+		spip_log(
+			'Migration vers le plugin Pays interrompue : impossible de supprimer la table physique spip_geo_pays.',
+			'inscription4.' . _LOG_ERREUR
+		);
+		return false;
+	}
+
+	$ancienne_table = sql_showtable('spip_geo_pays', '', false);
+	if (!empty($ancienne_table['field'])) {
+		spip_log(
+			'Migration vers le plugin Pays interrompue : la table physique spip_geo_pays existe encore après suppression.',
+			'inscription4.' . _LOG_ERREUR
+		);
+		return false;
+	}
+
+	spip_log(
+		'Migration vers le plugin Pays terminée : la table physique obsolète spip_geo_pays a été supprimée.',
+		'inscription4.' . _LOG_INFO
+	);
 	return true;
 }
 
