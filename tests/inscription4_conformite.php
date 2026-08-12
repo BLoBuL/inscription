@@ -16,7 +16,7 @@ if ((string) $paquet['prefix'] !== 'inscription4') {
 if ((string) $paquet['compatibilite'] !== '[4.1.0;4.*]') {
 	$erreurs[] = 'La compatibilité doit être limitée à SPIP 4.';
 }
-if ((string) $paquet['schema'] !== '4.1.1') {
+if ((string) $paquet['schema'] !== '4.1.2') {
 	$erreurs[] = 'Le schéma doit inclure la suppression contrôlée de la table Pays obsolète.';
 }
 $procure_inscription3 = false;
@@ -332,11 +332,12 @@ if (!preg_match("/\\\$maj\\['create'\\]\\[\\]\\s*=\\s*array\\('i3_migrer_pays'\\
 	$erreurs[] = 'Une première activation d’Inscription 4 doit migrer les pays historiques.';
 }
 if (
-	strpos($administration, "maj['4.1.1']") === false
+	strpos($administration, "maj['4.1.2']") === false
 	|| strpos($administration, "sql_drop_table('spip_geo_pays', true)") === false
 	|| strpos($administration, "sql_showtable('spip_geo_pays', '', false)") === false
+	|| strpos($administration, '$auteurs_avec_pays && $ancien_id !== $nouvel_id') === false
 ) {
-	$erreurs[] = 'La migration 4.1.1 doit supprimer et contrôler explicitement la table Pays obsolète.';
+	$erreurs[] = 'La migration 4.1.2 doit supprimer la table Pays obsolète même sans colonne auteurs.pays.';
 }
 if (
 	strpos($administration, "sql_showtable('spip_auteurs'") === false

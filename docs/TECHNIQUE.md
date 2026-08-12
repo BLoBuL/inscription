@@ -5,8 +5,8 @@
 | Élément | Valeur |
 | --- | --- |
 | Préfixe du paquet | `inscription4` |
-| Version documentée | `4.1.12` |
-| Schéma | `4.1.1` |
+| Version documentée | `4.1.13` |
+| Schéma | `4.1.2` |
 | SPIP | `[4.1.0;4.*]` |
 | Compatibilité fournie | `inscription3` version `4.1.0` |
 | Méta de configuration | `inscription3` |
@@ -289,6 +289,7 @@ déclarée par les ponts `inscription4_administrations.php`.
 | `4.0.1` | migration des pays |
 | `4.1.0` | écriture des options CExtras natives |
 | `4.1.1` | reprise de la migration Pays et suppression contrôlée de `spip_geo_pays` après remappage réussi |
+| `4.1.2` | suppression de `spip_geo_pays` lorsque la colonne historique `spip_auteurs.pays` est déjà absente |
 
 La migration Pays compare les codes ISO et ne dépend pas des anciens
 identifiants numériques.

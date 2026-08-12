@@ -4,10 +4,11 @@ Ce document décrit la branche native SPIP 4. Les versions 3.x restent
 destinées aux anciennes branches de SPIP et ne doivent pas être remplacées
 sur un site qui n’utilise pas SPIP 4.
 
-## 4.1.12
+## 4.1.13
 
-- Rejouer la migration vers le plugin Pays avec le schéma `4.1.1`.
+- Rejouer la migration vers le plugin Pays avec le schéma `4.1.2`.
 - Supprimer la table physique obsolète `spip_geo_pays` uniquement après remappage complet et vérifier sa disparition.
+- Supprimer également cette table lorsqu’aucun remappage n’est nécessaire parce que `spip_auteurs.pays` est déjà absente.
 - Journaliser explicitement le succès ou l’échec de cette suppression.
 
 ## Ruptures principales avec Inscription 3

@@ -92,6 +92,9 @@ function inscription3_upgrade($nom_meta_base_version, $version_cible) {
 	$maj['4.1.1'] = array(
 		array('i3_migrer_pays'),
 	);
+	$maj['4.1.2'] = array(
+		array('i3_migrer_pays'),
+	);
 
 	include_spip('base/upgrade');
 	maj_plugin($nom_meta_base_version, $version_cible, $maj);
@@ -173,12 +176,12 @@ function i3_migrer_pays() {
 	}
 
 	$table_auteurs = sql_showtable('spip_auteurs', '', false);
-	if (empty($table_auteurs['field']['pays'])) {
+	$auteurs_avec_pays = !empty($table_auteurs['field']['pays']);
+	if (!$auteurs_avec_pays) {
 		spip_log(
-			'Migration vers le plugin Pays ignorée : la colonne historique spip_auteurs.pays est absente.',
+			'Migration vers le plugin Pays : aucun remappage auteur nécessaire, la colonne historique spip_auteurs.pays est absente.',
 			'inscription4.' . _LOG_INFO
 		);
-		return true;
 	}
 
 	$anciens_pays = sql_allfetsel('id_pays, code_iso, nom', 'spip_geo_pays');
@@ -222,17 +225,19 @@ function i3_migrer_pays() {
 		return false;
 	}
 
-	$ids_utilises = array_map(
-		'intval',
-		array_column(
-			sql_allfetsel(
-				'DISTINCT pays AS id_pays',
-				'spip_auteurs',
-				'pays IS NOT NULL AND pays != 0'
-			),
-			'id_pays'
+	$ids_utilises = $auteurs_avec_pays
+		? array_map(
+			'intval',
+			array_column(
+				sql_allfetsel(
+					'DISTINCT pays AS id_pays',
+					'spip_auteurs',
+					'pays IS NOT NULL AND pays != 0'
+				),
+				'id_pays'
+			)
 		)
-	);
+		: array();
 	$ids_sans_correspondance = array_diff($ids_utilises, array_keys($correspondances));
 	if ($ids_sans_correspondance) {
 		spip_log(
@@ -244,7 +249,7 @@ function i3_migrer_pays() {
 	}
 
 	foreach ($correspondances as $ancien_id => $nouvel_id) {
-		if ($ancien_id !== $nouvel_id) {
+		if ($auteurs_avec_pays && $ancien_id !== $nouvel_id) {
 			sql_updateq(
 				'spip_auteurs',
 				array('pays' => $nouvel_id),
