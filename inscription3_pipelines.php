@@ -32,6 +32,23 @@ function inscription4_auteur_modifier_interne($id_auteur, array $set) {
 }
 
 /**
+ * Indique si la requête courante a commencé avec une session authentifiée.
+ *
+ * La valeur est mémorisée avant le traitement natif du formulaire. Une
+ * éventuelle auto-connexion du compte nouvellement créé ne peut donc pas être
+ * confondue avec une session qui existait déjà au début de la requête.
+ */
+function inscription4_session_initiale_authentifiee() {
+	static $authentifiee = null;
+
+	if ($authentifiee === null) {
+		$authentifiee = !empty($GLOBALS['visiteur_session']['id_auteur']);
+	}
+
+	return $authentifiee;
+}
+
+/**
  *
  * Insertion dans le pipeline i3_exceptions_chargement_champs_auteurs_elargis (Inscription3)
  * qui empêche le chargement et la recherche de champs lors de l'affichage de formulaires (editer_auteur / inscription)
@@ -302,7 +319,10 @@ function inscription3_formulaire_charger($flux) {
 		and $flux['args']['form'] =='inscription') {
 		// Une création de compte est exclusivement un parcours visiteur.
 		// Le contrôle est répété dans verifier/traiter pour couvrir un POST direct.
-		if (!empty($GLOBALS['visiteur_session']['id_auteur'])) {
+		if (inscription4_session_initiale_authentifiee()) {
+			if (!isset($flux['data']) or !is_array($flux['data'])) {
+				$flux['data'] = array();
+			}
 			$flux['data']['editable'] = false;
 			$flux['data']['message_erreur'] = _T('inscription4:erreur_inscription_session');
 			return $flux;
@@ -384,7 +404,10 @@ function inscription3_formulaire_charger($flux) {
 function inscription3_formulaire_verifier($flux) {
 	include_spip('inc/config');
 	if ($flux['args']['form'] === 'inscription') {
-		if (!empty($GLOBALS['visiteur_session']['id_auteur'])) {
+		if (inscription4_session_initiale_authentifiee()) {
+			if (!isset($flux['data']) or !is_array($flux['data'])) {
+				$flux['data'] = array();
+			}
 			$flux['data']['message_erreur'] = _T('inscription4:erreur_inscription_session');
 			$flux['data']['_inscription4_session_bloquee'] = true;
 			return $flux;
@@ -673,12 +696,6 @@ function inscription3_formulaire_verifier($flux) {
  * @return array $flux Le contexte d'environnement modifié
  */
 function inscription3_formulaire_traiter($flux) {
-	if (($flux['args']['form'] ?? '') === 'inscription'
-		and !empty($GLOBALS['visiteur_session']['id_auteur'])) {
-		$flux['data']['message_erreur'] = _T('inscription4:erreur_inscription_session');
-		unset($flux['data']['message_ok']);
-		return $flux;
-	}
 	if ($flux['args']['form']=='configurer_inscription3') {
 		include_spip('formulaires/inscription3_cextras_fonctions');
 		if (!inscription4_cextras_enregistrer_options_natives(_request('cextras_inscription'))) {
@@ -837,10 +854,10 @@ function inscription3_formulaire_traiter($flux) {
 			}
 			$val['statut'] = '8aconfirmer';
 		} else {
-			// Sans validation administrative, le noyau conserve le statut
-			// `nouveau` jusqu'à la première authentification. Le statut final
-			// est déjà mémorisé par SPIP dans `prefs`.
-			unset($val['statut']);
+			// Sans validation administrative, conserver explicitement le
+			// statut que le noyau vient d'attribuer. L'API editer_objet()
+			// attend ce champ pour les objets datés, même sans changement.
+			$val['statut'] = $user['statut'];
 		}
 
 		// Les secrets et champs internes d'authentification appartiennent

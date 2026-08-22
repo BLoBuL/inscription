@@ -254,11 +254,14 @@ if (
 	$erreurs[] = 'Inscription 4 ne doit pas masquer ou réécrire le parcours de mot de passe natif.';
 }
 if (
-	strpos($pipeline_cextras, "unset(\$val['statut']);") === false
+	strpos($pipeline_cextras, "\$val['statut'] = \$user['statut'];") === false
 	|| strpos($pipeline_cextras, "\$flux['data']['prefs'] = \$flux['data']['statut'];") === false
 	|| strpos($pipeline_cextras, "\$flux['data']['statut'] = 'nouveau';") === false
 ) {
 	$erreurs[] = 'Le cycle de validation doit conserver le statut final dans prefs et repasser par nouveau.';
+}
+if (substr_count($pipeline_cextras, "!is_array(\$flux['data'])") < 2) {
+	$erreurs[] = 'Les pipelines CVT doivent normaliser data avant toute écriture sous PHP 8.';
 }
 $notification_securisee = file_get_contents($racine . '/notifications/inscription4_auteur.php');
 $modele_securise = file_get_contents($racine . '/notifications/inscription4_auteur_inscription_valider.html');
